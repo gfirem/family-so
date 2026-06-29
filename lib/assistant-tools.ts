@@ -1,6 +1,6 @@
-// Herramientas compartidas por el chat con Claude (in-app) y el servidor MCP.
-// Cada una lee/escribe datos de family-so. Las de escritura son acotadas y seguras
-// (no borran ni modifican datos de salud sensibles).
+// Tools shared by the chat with Claude (in-app) and the MCP server.
+// Each one reads/writes family-so data. The write tools are scoped and safe
+// (they don't delete or modify sensitive health data).
 
 import { db } from "@/lib/db";
 import { getCurrentWeek, weekHabitStats } from "@/lib/week";
@@ -22,31 +22,31 @@ export const assistantTools: ToolDef[] = [
   {
     name: "get_week_summary",
     description:
-      "Resumen de la semana actual: el norte, lista de compras, actividades, plan de comida y % de hábitos por persona.",
+      "Summary of the current week: the north star, shopping list, activities, meal plan and % of habits per person.",
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     handler: async () => {
       const week = await getCurrentWeek();
       const { stats } = await weekHabitStats(week.weekOf);
       return JSON.stringify({
-        semanaDel: isoDate(week.weekOf),
-        norte: week.northStar,
-        queNosDescarrilo: week.notes,
-        compras: week.shoppingItems.map((i) => ({ nombre: i.name, hecho: i.checked })),
-        actividades: week.activities.map((a) => ({
-          dia: DAY_NAMES[a.day],
-          titulo: a.title,
-          hora: a.time,
-          quien: a.who,
-          tipo: a.type,
-          hecho: a.done,
+        weekOf: isoDate(week.weekOf),
+        northStar: week.northStar,
+        whatDerailedUs: week.notes,
+        shopping: week.shoppingItems.map((i) => ({ name: i.name, done: i.checked })),
+        activities: week.activities.map((a) => ({
+          day: DAY_NAMES[a.day],
+          title: a.title,
+          time: a.time,
+          who: a.who,
+          type: a.type,
+          done: a.done,
         })),
-        habitos: stats.map((s) => ({ persona: s.user.name, porcentaje: s.pct })),
+        habits: stats.map((s) => ({ person: s.user.name, percent: s.pct })),
       });
     },
   },
   {
     name: "get_habits",
-    description: "Hábitos por persona con su racha de la semana y si son clave (keystone).",
+    description: "Habits per person with their streak for the week and whether they are keystone habits.",
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     handler: async () => {
       const users = await db.user.findMany({ orderBy: { createdAt: "asc" } });
@@ -65,11 +65,11 @@ export const assistantTools: ToolDef[] = [
         const doneByHabit = new Map<string, number>();
         for (const l of logs) doneByHabit.set(l.habitId, (doneByHabit.get(l.habitId) ?? 0) + 1);
         out.push({
-          persona: u.name,
-          habitos: habits.map((h) => ({
-            nombre: h.name,
-            clave: h.isKeystone,
-            cumplidosEstaSemana: doneByHabit.get(h.id) ?? 0,
+          person: u.name,
+          habits: habits.map((h) => ({
+            name: h.name,
+            keystone: h.isKeystone,
+            doneThisWeek: doneByHabit.get(h.id) ?? 0,
           })),
         });
       }
@@ -78,7 +78,7 @@ export const assistantTools: ToolDef[] = [
   },
   {
     name: "get_goals",
-    description: "Metas del trimestre actual, agrupadas por pilar, con su estado.",
+    description: "Goals for the current quarter, grouped by pillar, with their status.",
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     handler: async () => {
       const { year, quarter } = quarterOf();
@@ -88,81 +88,81 @@ export const assistantTools: ToolDef[] = [
         orderBy: { createdAt: "asc" },
       });
       return JSON.stringify({
-        trimestre: `Q${quarter} ${year}`,
-        metas: goals.map((g) => ({ texto: g.text, pilar: g.pillar.name, estado: g.status })),
+        quarter: `Q${quarter} ${year}`,
+        goals: goals.map((g) => ({ text: g.text, pillar: g.pillar.name, status: g.status })),
       });
     },
   },
   {
     name: "list_recipes",
-    description: "Banco de recetas 1-2-12. Filtro opcional 'soloAprobadas' (true por defecto).",
+    description: "1-2-12 recipe bank. Optional filter 'onlyApproved' (true by default).",
     inputSchema: {
       type: "object",
       properties: {
-        soloAprobadas: { type: "boolean", description: "Devolver solo recetas aprobadas" },
+        onlyApproved: { type: "boolean", description: "Return only approved recipes" },
       },
       additionalProperties: false,
     },
     handler: async (args) => {
-      const soloAprobadas = args.soloAprobadas !== false;
+      const onlyApproved = args.onlyApproved !== false;
       const recipes = await db.recipe.findMany({
-        where: soloAprobadas ? { approved: true } : {},
+        where: onlyApproved ? { approved: true } : {},
         orderBy: [{ isShake: "desc" }, { name: "asc" }],
       });
       return JSON.stringify(
         recipes.map((r) => ({
-          nombre: r.name,
-          licuado: r.isShake,
-          proteinaG: r.proteinG,
-          etiquetas: r.tags,
-          aprobada: r.approved,
+          name: r.name,
+          isShake: r.isShake,
+          proteinG: r.proteinG,
+          tags: r.tags,
+          approved: r.approved,
         })),
       );
     },
   },
   {
     name: "get_day_structure",
-    description: "Estructura del día (bloques horarios) y reglas de sueño 10-3-2-1-0.",
+    description: "Day structure (time blocks) and 10-3-2-1-0 sleep rules.",
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     handler: async () => {
       const day = await db.dayStructure.findFirst();
-      return JSON.stringify({ bloques: day?.blocks ?? [], sueno: day?.sleepRules ?? [] });
+      return JSON.stringify({ blocks: day?.blocks ?? [], sleepRules: day?.sleepRules ?? [] });
     },
   },
   {
     name: "add_plan_idea",
-    description: "Agrega una idea al banco de planes (salidas/conexión).",
+    description: "Adds an idea to the plan bank (outings/connection).",
     inputSchema: {
       type: "object",
       properties: {
-        titulo: { type: "string", description: "La idea de plan" },
-        categoria: { type: "string", description: "parque | rio | salida | conexion" },
-        costo: { type: "string", description: "ej: gratis, barato" },
+        title: { type: "string", description: "The plan idea" },
+        category: { type: "string", description: "parque | rio | salida | conexion" },
+        cost: { type: "string", description: "e.g.: gratis, barato" },
       },
-      required: ["titulo"],
+      required: ["title"],
       additionalProperties: false,
     },
     handler: async (args) => {
       const idea = await db.planIdea.create({
         data: {
-          title: String(args.titulo),
-          category: String(args.categoria ?? "salida"),
-          cost: String(args.costo ?? "gratis"),
+          title: String(args.title),
+          category: String(args.category ?? "salida"),
+          cost: String(args.cost ?? "gratis"),
         },
       });
-      return JSON.stringify({ ok: true, id: idea.id, titulo: idea.title });
+      return JSON.stringify({ ok: true, id: idea.id, title: idea.title });
     },
   },
   {
     name: "add_shopping_item",
-    description: "Agrega un item a la lista del mercado de la semana actual.",
+    description: "Adds an item to the current week's grocery list.",
     inputSchema: {
       type: "object",
       properties: {
-        nombre: { type: "string", description: "El producto a comprar" },
-        cantidad: { type: "string", description: "Cantidad (opcional)" },
+        name: { type: "string", description: "The product to buy" },
+        quantity: { type: "string", description: "Quantity (optional)" },
       },
-      required: ["nombre"],
+      required: ["name"],
       additionalProperties: false,
     },
     handler: async (args) => {
@@ -170,8 +170,8 @@ export const assistantTools: ToolDef[] = [
       const item = await db.shoppingItem.create({
         data: {
           weekId: week.id,
-          name: String(args.nombre),
-          qty: args.cantidad ? String(args.cantidad) : null,
+          name: String(args.name),
+          qty: args.quantity ? String(args.quantity) : null,
           source: "manual",
         },
       });
@@ -182,7 +182,7 @@ export const assistantTools: ToolDef[] = [
 
 export const toolsByName = new Map(assistantTools.map((t) => [t.name, t]));
 
-// Schemas en el formato que espera la Messages API de Anthropic.
+// Schemas in the format expected by Anthropic's Messages API.
 export function anthropicToolSchemas() {
   return assistantTools.map((t) => ({
     name: t.name,

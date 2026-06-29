@@ -1,9 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-// Prisma 7 es Rust-free: el runtime habla con Postgres a través de un driver
-// adapter. PrismaPg toma la connection string de DATABASE_URL (Neon en prod,
-// Postgres local en dev) y maneja el pool — ideal para serverless en Vercel.
+// Prisma 7 is Rust-free: the runtime talks to Postgres through a driver
+// adapter. PrismaPg takes the connection string from DATABASE_URL (Neon in prod,
+// local Postgres in dev) and manages the pool — ideal for serverless on Vercel.
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;

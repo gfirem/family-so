@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* --- Tema family-so: cálido, calmo, orientado a crecer. Mobile-first. --- */
+/* --- family-so theme: warm, calm, growth-oriented. Mobile-first. --- */
 @theme {
   --color-bg: #f7f6f2;
   --color-surface: #ffffff;
@@ -34,7 +34,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Componentes de UI reutilizables */
+/* Reusable UI components */
 @layer components {
   .card {
     @apply rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-5 shadow-sm;

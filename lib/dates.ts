@@ -1,9 +1,9 @@
-// Utilidades de fecha. La semana arranca el LUNES (weekOf).
+// Date utilities. The week starts on MONDAY (weekOf).
 
 export function startOfWeek(d: Date = new Date()): Date {
   const date = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-  const day = date.getUTCDay(); // 0=domingo
-  const diff = (day === 0 ? -6 : 1) - day; // mover al lunes
+  const day = date.getUTCDay(); // 0=Sunday
+  const diff = (day === 0 ? -6 : 1) - day; // move to Monday
   date.setUTCDate(date.getUTCDate() + diff);
   return date;
 }

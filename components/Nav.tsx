@@ -60,7 +60,7 @@ export function Sidebar({ userName }: { userName: string }) {
 
 export function BottomBar() {
   const pathname = usePathname();
-  // En móvil mostramos los 5 destinos principales.
+  // On mobile we show the 5 main destinations.
   const main = LINKS.slice(0, 5);
   return (
     <nav className="fixed inset-x-0 bottom-0 z-20 flex border-t border-[var(--color-line)] bg-white md:hidden">

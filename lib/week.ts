@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { startOfWeek, addDays, isoDate } from "@/lib/dates";
 
-// Crea (si no existe) y devuelve la semana de una fecha, con todo lo que cuelga.
+// Creates (if it doesn't exist) and returns the week for a date, with everything attached to it.
 export async function ensureWeek(weekOf: Date) {
   const existing = await db.week.findUnique({
     where: { weekOf },
@@ -22,7 +22,7 @@ export async function getCurrentWeek() {
   return ensureWeek(startOfWeek());
 }
 
-// % de hábitos cumplidos por persona en la semana dada.
+// % of habits completed per person in the given week.
 export async function weekHabitStats(weekOf: Date) {
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekOf, i));
   const from = days[0];
@@ -49,7 +49,7 @@ export async function weekHabitStats(weekOf: Date) {
   return { days: days.map(isoDate), stats };
 }
 
-// Últimos N pesos por persona, para la tendencia del tablero.
+// Last N weights per person, for the dashboard trend.
 export async function recentWeights(limit = 8) {
   const users = await db.user.findMany({ orderBy: { createdAt: "asc" } });
   const result = [];

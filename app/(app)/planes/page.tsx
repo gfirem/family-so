@@ -25,7 +25,7 @@ export default async function PlanesPage() {
         subtitle="Si tenemos nuestro propio plan, no hay nada que resistir. Que el finde nunca quede en blanco."
       />
 
-      {/* Banco de planes */}
+      {/* Plan bank */}
       <Card className="mb-5">
         <SectionTitle>Banco de planes</SectionTitle>
         <ul className="divide-y divide-[var(--color-line)]">
@@ -70,7 +70,7 @@ export default async function PlanesPage() {
         </form>
       </Card>
 
-      {/* Guion del "no" */}
+      {/* "No" script */}
       <Card>
         <SectionTitle>Guion del «no» (decidido en frío)</SectionTitle>
         <p className="mb-3 text-sm text-[var(--color-muted)]">

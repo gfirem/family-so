@@ -26,7 +26,7 @@ export default async function HabitosPage({
     orderBy: [{ isKeystone: "desc" }, { order: "asc" }],
   });
 
-  // Logs de los últimos 35 días para derivar racha y "dos veces seguidas".
+  // Logs from the last 35 days to derive streak and "twice in a row".
   const since = addDays(new Date(), -35);
   const logs = await db.habitLog.findMany({
     where: { ownerId: selected.id, done: true, date: { gte: since } },
@@ -47,7 +47,7 @@ export default async function HabitosPage({
   function streak(habitId: string): number {
     const set = doneByHabit.get(habitId) ?? new Set();
     let n = 0;
-    // arranca en hoy si está hecho, si no en ayer (un día no rompe la cadena al contar)
+    // start at today if done, otherwise at yesterday (a single day does not break the chain when counting)
     let cursor = set.has(todayIso) ? new Date() : addDays(new Date(), -1);
     while (set.has(isoDate(cursor))) {
       n++;
@@ -64,7 +64,7 @@ export default async function HabitosPage({
         subtitle="Nunca falles dos veces seguidas. Un día fallido no rompe nada; dos seguidos arrancan un hábito nuevo."
       />
 
-      {/* Tabs de persona */}
+      {/* Person tabs */}
       <div className="mb-5 flex gap-2">
         {users.map((u) => (
           <Link
@@ -81,7 +81,7 @@ export default async function HabitosPage({
         ))}
       </div>
 
-      {/* Ancla de identidad */}
+      {/* Identity anchor */}
       <Card className="mb-5 bg-[var(--color-brand-50)]">
         <p className="text-sm font-medium text-[var(--color-brand-700)]">
           Somos personas que duermen bien, entrenan y comen para estar fuertes — listos para ser
@@ -92,7 +92,7 @@ export default async function HabitosPage({
         </Link>
       </Card>
 
-      {/* Grilla semanal */}
+      {/* Weekly grid */}
       <Card className="mb-5 overflow-x-auto">
         <SectionTitle>Semana</SectionTitle>
         <table className="w-full border-collapse">
@@ -113,7 +113,7 @@ export default async function HabitosPage({
               const total = weekDays.filter((d) => set.has(isoDate(d))).length;
               const failedYesterday = !set.has(yesterdayIso);
               const notDoneToday = !set.has(todayIso);
-              const innegociable = failedYesterday && notDoneToday;
+              const nonNegotiable = failedYesterday && notDoneToday;
               return (
                 <tr key={h.id} className="border-t border-[var(--color-line)]">
                   <td className="py-2 pr-2 align-top">
@@ -123,7 +123,7 @@ export default async function HabitosPage({
                     </div>
                     <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-[var(--color-muted)]">
                       {streak(h.id) > 0 && <span>🔥 {streak(h.id)} días</span>}
-                      {innegociable && (
+                      {nonNegotiable && (
                         <span className="font-semibold text-[var(--color-danger)]">
                           ¡Hoy es innegociable!
                         </span>
@@ -155,7 +155,7 @@ export default async function HabitosPage({
         )}
       </Card>
 
-      {/* Lista de hábitos con identidad + borrar */}
+      {/* Habit list with identity + delete */}
       <Card className="mb-5">
         <SectionTitle>Hábitos de {selected.name}</SectionTitle>
         <ul className="divide-y divide-[var(--color-line)]">
@@ -185,7 +185,7 @@ export default async function HabitosPage({
         </form>
       </Card>
 
-      {/* Peso */}
+      {/* Weight */}
       <Card>
         <SectionTitle>Peso de {selected.name}</SectionTitle>
         <div className="flex flex-wrap items-end gap-4">

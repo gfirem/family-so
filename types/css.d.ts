@@ -1,2 +1,2 @@
-// Declaración para imports de CSS global (side-effect), p. ej. ./globals.css.
+// Declaration for global CSS imports (side-effect), e.g. ./globals.css.
 declare module "*.css";
