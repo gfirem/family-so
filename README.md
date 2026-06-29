@@ -17,3 +17,40 @@ Trabajan los dos en remoto desde casa. Sin un plan propio, la semana se va encer
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — fases de construcción.
 - [`docs/HEALTH-AND-CONSTRAINTS.md`](docs/HEALTH-AND-CONSTRAINTS.md) — notas de salud y límites del producto.
 - [`reference/`](reference/) — los planes actuales (día, semana, hábitos, comida) ya mejorados, como contenido semilla.
+
+## Stack (v1)
+- **Next.js (App Router) + TypeScript**, **Tailwind CSS v4** — interfaz en español, mobile-first.
+- **Prisma 7** (Rust-free) + **PostgreSQL** vía driver adapter — pensado para **Neon** en producción.
+- **Auth.js v5** — login real por persona (Guille / China).
+- **Anthropic SDK** (`claude-opus-4-8`) — chat asistente que lee tus datos reales.
+- **Servidor MCP** (`/api/mcp`) — expone los datos de family-so como herramientas para Claude.
+
+## Cómo correr en local
+1. `npm install`
+2. Copiá `.env.example` a `.env` y completá:
+   - `DATABASE_URL` (Postgres local o Neon)
+   - `AUTH_SECRET` (`openssl rand -base64 32`)
+   - `ANTHROPIC_API_KEY` (opcional; sin esto el chat queda deshabilitado)
+   - `MCP_TOKEN` (opcional; protege el endpoint MCP)
+3. `npm run db:push` — crea las tablas del esquema.
+4. `npm run db:seed` — siembra usuarios, pilares, hábitos, recetas y planes desde `reference/`.
+5. `npm run dev` — la app queda en http://localhost:3000
+
+> Usuarios sembrados: `guille@family.so` y `china@family.so`, contraseña inicial `familia2026` (cambiala después del primer ingreso).
+
+## Despliegue (Vercel + Neon)
+- Conectá el repo a Vercel y creá una base en Neon.
+- Cargá las variables (`DATABASE_URL`, `AUTH_SECRET`, `ANTHROPIC_API_KEY`, `MCP_TOKEN`) en Vercel.
+- En el primer deploy corré `npm run db:push && npm run db:seed` contra Neon.
+
+## Mapa de módulos
+- **Tablero** (`/`) — peso, % de hábitos, "qué nos descarriló".
+- **Planning del domingo** (`/planning`) — flujo de 7 bloques (columna vertebral).
+- **Alimentación 1-2-12** (`/alimentacion`) — banco de recetas + plan semanal + lista del mercado.
+- **Hábitos** (`/habitos`) — tracker por persona, racha, "nunca fallar dos veces", peso.
+- **Metas** (`/metas`) — trimestrales por pilar.
+- **El día** (`/dia`) — estructura + sueño 10-3-2-1-0.
+- **Planes** (`/planes`) — banco de planes + guion del "no".
+- **Asistente** (`/chat`) — chat con Claude sobre tus datos.
+
+> Pendientes conocidos (v1+): cargar el recetario 1-2-12 completo (PDF) y construir el módulo de entrenamiento (casa + club). Recordatorios reales vía Google Calendar quedan para v2.

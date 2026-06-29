@@ -1,1 +1,22 @@
+# dependencias
+/node_modules
+
+# build de Next
+/.next
+/out
+next-env.d.ts
+
+# entorno (las credenciales de Neon van en Vercel, nunca en el repo)
+.env
+.env*.local
+
+# logs y SO
+*.log
+.DS_Store
+
+# IDE
 .idea
+.vscode
+
+# Prisma
+/prisma/*.db

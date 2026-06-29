@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+/* --- Tema family-so: cálido, calmo, orientado a crecer. Mobile-first. --- */
+@theme {
+  --color-bg: #f7f6f2;
+  --color-surface: #ffffff;
+  --color-ink: #1c2421;
+  --color-muted: #6b7872;
+  --color-line: #e7e4dc;
+
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+
+  --color-warm-400: #fb923c;
+  --color-warm-500: #f97316;
+
+  --color-danger: #e1554e;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --radius-card: 1rem;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Componentes de UI reutilizables */
+@layer components {
+  .card {
+    @apply rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-5 shadow-sm;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50 bg-[var(--color-brand-600)] text-white hover:bg-[var(--color-brand-700)];
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50 border border-[var(--color-line)] bg-white text-[var(--color-ink)] hover:bg-[var(--color-bg)];
+  }
+  .input {
+    @apply w-full rounded-xl border border-[var(--color-line)] bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[var(--color-brand-500)] focus:ring-2 focus:ring-[var(--color-brand-100)];
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-[var(--color-ink)];
+  }
+  .chip {
+    @apply inline-flex items-center rounded-full border border-[var(--color-line)] bg-white px-2.5 py-1 text-xs font-medium text-[var(--color-muted)];
+  }
+  .pill-keystone {
+    @apply inline-flex items-center rounded-full bg-[var(--color-brand-100)] px-2 py-0.5 text-[11px] font-semibold text-[var(--color-brand-700)];
+  }
+}
