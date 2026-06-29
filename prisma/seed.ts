@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import bcrypt from "bcryptjs";
 
 // Simple .env loader to run the seed without extra dependencies.
 import fs from "node:fs";
@@ -133,17 +132,20 @@ const RECIPES = [
 ];
 
 async function main() {
-  // --- Users (real login). Change the passwords after the first sign-in. ---
-  const defaultPass = await bcrypt.hash("familia2026", 10);
+  // --- Users. Sign-in is via Google Workspace; emails must match their Google
+  // accounts so the Google identity links to the right person. Set GUILLE_EMAIL
+  // and CHINA_EMAIL in the environment; defaults are placeholders. ---
+  const guilleEmail = (process.env.GUILLE_EMAIL ?? "guille@family.so").toLowerCase();
+  const chinaEmail = (process.env.CHINA_EMAIL ?? "china@family.so").toLowerCase();
   await db.user.upsert({
-    where: { email: "guille@family.so" },
-    update: {},
-    create: { name: "Guille", email: "guille@family.so", passwordHash: defaultPass, role: "owner" },
+    where: { email: guilleEmail },
+    update: { name: "Guille" },
+    create: { name: "Guille", email: guilleEmail, role: "owner" },
   });
   await db.user.upsert({
-    where: { email: "china@family.so" },
-    update: {},
-    create: { name: "China", email: "china@family.so", passwordHash: defaultPass, role: "owner" },
+    where: { email: chinaEmail },
+    update: { name: "China" },
+    create: { name: "China", email: chinaEmail, role: "owner" },
   });
   const users = await db.user.findMany();
 

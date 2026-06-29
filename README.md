@@ -21,26 +21,34 @@ Trabajan los dos en remoto desde casa. Sin un plan propio, la semana se va encer
 ## Stack (v1)
 - **Next.js (App Router) + TypeScript**, **Tailwind CSS v4** — interfaz en español, mobile-first.
 - **Prisma 7** (Rust-free) + **PostgreSQL** vía driver adapter — pensado para **Neon** en producción.
-- **Auth.js v5** — login real por persona (Guille / China).
+- **Auth.js v5** — login con **Google Workspace** (Google-only), con scopes de **Google Calendar**.
 - **Anthropic SDK** (`claude-opus-4-8`) — chat asistente que lee tus datos reales.
 - **Servidor MCP** (`/api/mcp`) — expone los datos de family-so como herramientas para Claude.
 
 ## Cómo correr en local
 1. `npm install`
-2. Copiá `.env.example` a `.env` y completá:
+2. Copiá `.env.example` a `.env` y completá (ver `.env.example` para el detalle):
    - `DATABASE_URL` (Postgres local o Neon)
    - `AUTH_SECRET` (`openssl rand -base64 32`)
+   - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (OAuth de Google, con la Calendar API habilitada)
+   - `ALLOWED_EMAILS` / `GUILLE_EMAIL` / `CHINA_EMAIL` (las cuentas de Workspace autorizadas)
+   - `APP_TIMEZONE` (zona horaria para los eventos del Calendar)
    - `ANTHROPIC_API_KEY` (opcional; sin esto el chat queda deshabilitado)
    - `MCP_TOKEN` (opcional; protege el endpoint MCP)
 3. `npm run db:push` — crea las tablas del esquema.
-4. `npm run db:seed` — siembra usuarios, pilares, hábitos, recetas y planes desde `reference/`.
+4. `npm run db:seed` — siembra las dos personas (por email de Workspace), pilares, hábitos, recetas y planes desde `reference/`.
 5. `npm run dev` — la app queda en http://localhost:3000
 
-> Usuarios sembrados: `guille@family.so` y `china@family.so`, contraseña inicial `familia2026` (cambiala después del primer ingreso).
+> El ingreso es **solo con Google Workspace**: entrás con tu cuenta autorizada (`ALLOWED_EMAILS`). El seed liga cada persona a su email para que hábitos y peso sean individuales.
+
+### Configurar Google OAuth (una vez)
+1. En Google Cloud → APIs & Services: creá un **OAuth 2.0 Client ID** (tipo *Web application*) y habilitá la **Google Calendar API**.
+2. Redirect URIs: `http://localhost:3000/api/auth/callback/google` y `https://<dominio-vercel>/api/auth/callback/google`.
+3. Pegá `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET` en `.env` (local) y en Vercel.
 
 ## Despliegue (Vercel + Neon)
 - Conectá el repo a Vercel y creá una base en Neon.
-- Cargá las variables (`DATABASE_URL`, `AUTH_SECRET`, `ANTHROPIC_API_KEY`, `MCP_TOKEN`) en Vercel.
+- Cargá las variables (`DATABASE_URL`, `AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `ALLOWED_EMAILS`, `GUILLE_EMAIL`, `CHINA_EMAIL`, `APP_TIMEZONE`, `ANTHROPIC_API_KEY`, `MCP_TOKEN`) en Vercel.
 - En el primer deploy corré `npm run db:push && npm run db:seed` contra Neon.
 
 ## Mapa de módulos

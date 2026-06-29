@@ -1,10 +1,12 @@
-"use client";
+import { loginWithGoogle } from "./actions";
+import { SubmitButton } from "@/components/actions-ui";
 
-import { useActionState } from "react";
-import { loginAction } from "./actions";
-
-export default function LoginPage() {
-  const [error, formAction, pending] = useActionState(loginAction, undefined);
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
 
   return (
     <main className="flex min-h-dvh items-center justify-center p-6">
@@ -19,50 +21,21 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <form action={formAction} className="card space-y-4">
-          <div>
-            <label className="label" htmlFor="email">
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              className="input"
-              placeholder="guille@family.so"
-            />
-          </div>
-          <div>
-            <label className="label" htmlFor="password">
-              Contraseña
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              className="input"
-              placeholder="••••••••"
-            />
-          </div>
-
+        <div className="card space-y-4">
           {error && (
             <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-[var(--color-danger)]">
-              {error}
+              {error === "AccessDenied"
+                ? "Esa cuenta no tiene acceso. Entrá con tu cuenta de Google autorizada."
+                : "No pudimos iniciar sesión. Intentá de nuevo."}
             </p>
           )}
-
-          <button type="submit" disabled={pending} className="btn-primary w-full">
-            {pending ? "Entrando…" : "Entrar"}
-          </button>
-        </form>
-
-        <p className="mt-4 text-center text-xs text-[var(--color-muted)]">
-          Acceso para Guille y China.
-        </p>
+          <form action={loginWithGoogle}>
+            <SubmitButton className="btn-primary w-full">Entrar con Google</SubmitButton>
+          </form>
+          <p className="text-center text-xs text-[var(--color-muted)]">
+            Acceso solo para las cuentas de Guille y China.
+          </p>
+        </div>
       </div>
     </main>
   );

@@ -17,7 +17,7 @@ Read this before working in this repo.
 ## Stack
 - Next.js (App Router) + TypeScript + Tailwind CSS v4.
 - Prisma 7 (Rust-free) + PostgreSQL via the `pg` driver adapter. Connection comes only from `DATABASE_URL`.
-- Auth.js v5 (credentials, per-person login).
+- Auth.js v5 — Google Workspace sign-in (Google-only), with Google Calendar scopes. JWT session strategy; Google tokens kept in the JWT and refreshed in the jwt callback. Access is gated by `ALLOWED_EMAILS` / `ALLOWED_GOOGLE_DOMAIN`.
 - Anthropic SDK (`claude-opus-4-8`) for the in-app assistant; MCP server at `/api/mcp`.
 
 ## Deploy
