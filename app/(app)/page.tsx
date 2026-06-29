@@ -49,7 +49,7 @@ export default async function Dashboard() {
           ))}
         </div>
         <Link
-          href="/habitos"
+          href="/habits"
           className="mt-4 inline-block text-sm font-medium text-[var(--color-brand-700)]"
         >
           Abrir el tracker →
@@ -90,7 +90,7 @@ export default async function Dashboard() {
           })}
         </div>
         <Link
-          href="/habitos"
+          href="/habits"
           className="mt-4 inline-block text-sm font-medium text-[var(--color-brand-700)]"
         >
           Registrar peso →
@@ -121,7 +121,7 @@ export default async function Dashboard() {
           <Link href="/planning" className="btn-primary">
             🗓️ Planning del domingo
           </Link>
-          <Link href="/alimentacion" className="btn-ghost">
+          <Link href="/nutrition" className="btn-ghost">
             🥗 Plan de comida
           </Link>
         </div>

@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 
 function refresh() {
-  revalidatePath("/metas");
+  revalidatePath("/goals");
 }
 
 export async function addGoal(formData: FormData) {

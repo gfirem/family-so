@@ -7,11 +7,11 @@ import { logoutAction } from "@/app/actions/auth";
 const LINKS = [
   { href: "/", label: "Tablero", icon: "📊" },
   { href: "/planning", label: "Domingo", icon: "🗓️" },
-  { href: "/alimentacion", label: "Comida", icon: "🥗" },
-  { href: "/habitos", label: "Hábitos", icon: "✅" },
-  { href: "/metas", label: "Metas", icon: "🎯" },
-  { href: "/dia", label: "El día", icon: "🌅" },
-  { href: "/planes", label: "Planes", icon: "🌳" },
+  { href: "/nutrition", label: "Comida", icon: "🥗" },
+  { href: "/habits", label: "Hábitos", icon: "✅" },
+  { href: "/goals", label: "Metas", icon: "🎯" },
+  { href: "/day", label: "El día", icon: "🌅" },
+  { href: "/plans", label: "Planes", icon: "🌳" },
   { href: "/chat", label: "Chat", icon: "💬" },
 ];
 

@@ -54,11 +54,11 @@ Trabajan los dos en remoto desde casa. Sin un plan propio, la semana se va encer
 ## Mapa de módulos
 - **Tablero** (`/`) — peso, % de hábitos, "qué nos descarriló".
 - **Planning del domingo** (`/planning`) — flujo de 7 bloques (columna vertebral).
-- **Alimentación 1-2-12** (`/alimentacion`) — banco de recetas + plan semanal + lista del mercado.
-- **Hábitos** (`/habitos`) — tracker por persona, racha, "nunca fallar dos veces", peso.
-- **Metas** (`/metas`) — trimestrales por pilar.
-- **El día** (`/dia`) — estructura + sueño 10-3-2-1-0.
-- **Planes** (`/planes`) — banco de planes + guion del "no".
+- **Alimentación 1-2-12** (`/nutrition`) — banco de recetas + plan semanal + lista del mercado.
+- **Hábitos** (`/habits`) — tracker por persona, racha, "nunca fallar dos veces", peso.
+- **Metas** (`/goals`) — trimestrales por pilar.
+- **El día** (`/day`) — estructura + sueño 10-3-2-1-0.
+- **Planes** (`/plans`) — banco de planes + guion del "no".
 - **Asistente** (`/chat`) — chat con Claude sobre tus datos.
 
 > Pendientes conocidos (v1+): cargar el recetario 1-2-12 completo (PDF) y construir el módulo de entrenamiento (casa + club). Recordatorios reales vía Google Calendar quedan para v2.
