@@ -3,7 +3,7 @@
 Read this before working in this repo.
 
 ## Language conventions (non-negotiable)
-- **All code is in English**: comments, identifiers (variables, functions, types), object keys, commit messages, PR descriptions, and docs.
+- **All code is in English**: comments, identifiers (variables, functions, types), object keys, commit messages, PR descriptions, docs, and **route paths/URLs** (e.g. `/nutrition`, `/habits`, `/goals`, `/day`, `/plans`).
 - **The product UI is in Spanish**: every user-facing string literal stays in Spanish — JSX text, button labels, placeholders, `aria-*`, error messages rendered to users.
 - **Seed/data content stays in Spanish**: habit names, recipe names, plan ideas, the "no" script, day-structure text, sleep rules.
 - **The chat system prompt stays in Spanish** on purpose: the assistant must reply to the family in Spanish.

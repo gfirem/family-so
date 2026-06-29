@@ -69,7 +69,7 @@ export default async function HabitosPage({
         {users.map((u) => (
           <Link
             key={u.id}
-            href={`/habitos?p=${u.id}`}
+            href={`/habits?p=${u.id}`}
             className={`rounded-xl px-4 py-2 text-sm font-semibold ${
               u.id === selected.id
                 ? "bg-[var(--color-brand-600)] text-white"
@@ -87,7 +87,7 @@ export default async function HabitosPage({
           Somos personas que duermen bien, entrenan y comen para estar fuertes — listos para ser
           papás. Cada marca de abajo es un voto por esa persona.
         </p>
-        <Link href="/metas" className="mt-2 inline-block text-sm font-semibold text-[var(--color-brand-700)]">
+        <Link href="/goals" className="mt-2 inline-block text-sm font-semibold text-[var(--color-brand-700)]">
           Ver nuestras metas →
         </Link>
       </Card>

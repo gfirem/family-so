@@ -100,7 +100,7 @@ export default async function PlanningPage({
 
       {/* BLOCK 4 */}
       <Block n={4} title="Alimentación" desc="Elegir las recetas de la semana (rotando para no aburrirnos) y armar la lista del mercado.">
-        <Link href="/alimentacion" className="btn-primary mb-4">
+        <Link href="/nutrition" className="btn-primary mb-4">
           🥗 Armar el plan 1-2-12 →
         </Link>
         <h3 className="mb-2 text-sm font-semibold">Lista del mercado</h3>
@@ -138,7 +138,7 @@ export default async function PlanningPage({
       <Block n={5} title="Planes y conexión" desc="El miércoles afuera y el plan del fin de semana, con lugar y hora. Esto nos blinda de las presiones sociales.">
         <ActivityList items={connectionPlans} emptyText="Sin planes de conexión todavía." />
         <AddActivityForm weekId={week.id} type="conexion" whoOptions={whoOptions} placeholder="Ej: Trabajar desde el río" />
-        <Link href="/planes" className="mt-3 inline-block text-sm font-medium text-[var(--color-brand-700)]">
+        <Link href="/plans" className="mt-3 inline-block text-sm font-medium text-[var(--color-brand-700)]">
           Ver el banco de planes →
         </Link>
       </Block>
@@ -180,7 +180,7 @@ export default async function PlanningPage({
           <input name="invitees" placeholder="Invitados (separados por coma)" className="input" />
           <SubmitButton className="btn-ghost">Anticipar este bache</SubmitButton>
         </form>
-        <Link href="/planes" className="mt-3 inline-block text-sm font-medium text-[var(--color-brand-700)]">
+        <Link href="/plans" className="mt-3 inline-block text-sm font-medium text-[var(--color-brand-700)]">
           Ver el guion del &quot;no&quot; →
         </Link>
       </Block>

@@ -60,7 +60,7 @@ export default async function MetasPage({
 
       {/* Quarter navigation */}
       <div className="mb-5 flex items-center justify-between">
-        <Link href={`/metas?y=${prev.year}&q=${prev.quarter}`} className="btn-ghost">
+        <Link href={`/goals?y=${prev.year}&q=${prev.quarter}`} className="btn-ghost">
           ← Q{prev.quarter} {prev.year}
         </Link>
         <div className="text-center">
@@ -71,7 +71,7 @@ export default async function MetasPage({
             {doneCount}/{goals.length} cumplidas {isCurrent && "· trimestre actual"}
           </p>
         </div>
-        <Link href={`/metas?y=${next.year}&q=${next.quarter}`} className="btn-ghost">
+        <Link href={`/goals?y=${next.year}&q=${next.quarter}`} className="btn-ghost">
           Q{next.quarter} {next.year} →
         </Link>
       </div>
