@@ -1,0 +1,230 @@
+// Modelo de datos de family-so — traducción directa de docs/ARCHITECTURE.md.
+// Pensado para que la pareja COMPARTA los mismos datos; `ownerId` permite que
+// hábitos y peso sean individuales. Prisma 7 (Rust-free) + driver adapter pg.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --- Personas: Guille y China. Auth real por usuario. ---
+model User {
+  id           String     @id @default(cuid())
+  name         String // "Guille" / "China"
+  email        String     @unique
+  passwordHash String
+  role         String     @default("member")
+  createdAt    DateTime   @default(now())
+
+  habits     Habit[]
+  habitLogs  HabitLog[]
+  weightLogs WeightLog[]
+}
+
+// --- Los 12 pilares de la vida. ---
+model Pillar {
+  id     String  @id @default(cuid())
+  name   String  @unique
+  order  Int     @default(0)
+  active Boolean @default(true)
+
+  goals Goal[]
+}
+
+// --- Metas trimestrales asignadas a un pilar. ---
+model Goal {
+  id        String     @id @default(cuid())
+  year      Int
+  quarter   Int // 1..4
+  pillarId  String
+  pillar    Pillar     @relation(fields: [pillarId], references: [id])
+  text      String
+  status    GoalStatus @default(open)
+  createdAt DateTime   @default(now())
+  closedAt  DateTime?
+
+  @@index([year, quarter])
+}
+
+enum GoalStatus {
+  open
+  done
+  carried // se arrastra al siguiente trimestre
+}
+
+// --- Hábitos individuales (por persona). ---
+model Habit {
+  id           String   @id @default(cuid())
+  ownerId      String
+  owner        User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name         String
+  identityLink String? // "soy alguien que duerme bien"
+  isKeystone   Boolean  @default(false)
+  order        Int      @default(0)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  logs HabitLog[]
+
+  @@index([ownerId, active])
+}
+
+// --- Registro diario de cada hábito. Racha y total se derivan de acá. ---
+model HabitLog {
+  id      String   @id @default(cuid())
+  habitId String
+  habit   Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  ownerId String
+  owner   User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  date    DateTime @db.Date
+  done    Boolean  @default(true)
+
+  @@unique([habitId, date])
+  @@index([ownerId, date])
+}
+
+// --- Peso semanal, individual. ---
+model WeightLog {
+  id      String   @id @default(cuid())
+  ownerId String
+  owner   User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  date    DateTime @db.Date
+  weightKg Float
+
+  @@unique([ownerId, date])
+  @@index([ownerId, date])
+}
+
+// --- Estructura del día + reglas de sueño (config, no por día). Singleton. ---
+model DayStructure {
+  id         String   @id @default(cuid())
+  blocks     Json // [{ time, label, items[] }] — cadena de la mañana, horarios
+  sleepRules Json // 10-3-2-1-0
+  updatedAt  DateTime @updatedAt
+}
+
+// --- Semana: resultado del planning del domingo. ---
+model Week {
+  id        String   @id @default(cuid())
+  weekOf    DateTime @unique @db.Date // lunes de esa semana
+  notes     String? // "qué nos descarriló"
+  northStar String? // la frase del norte recordada ese domingo
+  createdAt DateTime @default(now())
+
+  shoppingItems ShoppingItem[]
+  activities    Activity[]
+  mealPlan      MealPlan?
+  events        Event[]
+}
+
+// --- Item de la lista de compras de una semana. ---
+model ShoppingItem {
+  id      String  @id @default(cuid())
+  weekId  String
+  week    Week    @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  name    String
+  qty     String?
+  aisle   String? // pasillo / categoría
+  checked Boolean @default(false)
+  source  String  @default("manual") // "manual" | "receta"
+}
+
+// --- Actividad / tarea de la semana (entreno, miércoles afuera, tareas claras). ---
+model Activity {
+  id     String   @id @default(cuid())
+  weekId String
+  week   Week     @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  day    Int // 0=lunes .. 6=domingo
+  title  String
+  time   String? // "lo que no tiene hora, no sucede"
+  who    String? // "Guille" / "China" / "ambos"
+  type   String   @default("tarea") // tarea | entreno | conexion | social
+  done   Boolean  @default(false)
+}
+
+// --- Banco de recetas (sistema 1-2-12). Se aprueban y etiquetan. ---
+model Recipe {
+  id        String   @id @default(cuid())
+  name      String
+  source    String   @default("recetario 1-2-12")
+  approved  Boolean  @default(false)
+  proteinG  Int? // gramos de proteína por porción
+  tags      String[] // ["sin-lacteos", "licuado", ...]
+  prepStyle String   @default("full") // minimalist | batch | full
+  isShake   Boolean  @default(false) // el "1": licuado
+  notes     String?
+  createdAt DateTime @default(now())
+
+  asShake MealPlanDay[] @relation("ShakeRecipe")
+  asMeal1 MealPlanDay[] @relation("Meal1Recipe")
+  asMeal2 MealPlanDay[] @relation("Meal2Recipe")
+
+  @@index([approved])
+}
+
+// --- Plan de comidas de una semana (licuado + 2 comidas/día). ---
+model MealPlan {
+  id     String        @id @default(cuid())
+  weekId String        @unique
+  week   Week          @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  days   MealPlanDay[]
+}
+
+model MealPlanDay {
+  id         String   @id @default(cuid())
+  mealPlanId String
+  mealPlan   MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+  day        Int // 0=lunes .. 6=domingo
+
+  shakeId String?
+  shake   Recipe? @relation("ShakeRecipe", fields: [shakeId], references: [id])
+  meal1Id String?
+  meal1   Recipe? @relation("Meal1Recipe", fields: [meal1Id], references: [id])
+  meal2Id String?
+  meal2   Recipe? @relation("Meal2Recipe", fields: [meal2Id], references: [id])
+
+  @@unique([mealPlanId, day])
+}
+
+// --- Eventos sociales/salidas/citas, con el plan decidido EN FRÍO. ---
+model Event {
+  id       String    @id @default(cuid())
+  weekId   String?
+  week     Week?     @relation(fields: [weekId], references: [id], onDelete: SetNull)
+  date     DateTime  @db.Date
+  type     String    @default("social") // salida | social | cita-fertilidad
+  place    String?
+  invitees String[]
+  plan     String? // la decisión en frío: "vamos pero no tomamos, nos vamos a las 9"
+}
+
+// --- Banco de planes: salidas baratas para que el finde no quede en blanco. ---
+model PlanIdea {
+  id       String  @id @default(cuid())
+  title    String
+  category String  @default("salida") // parque | rio | salida | conexion
+  cost     String  @default("gratis")
+  notes    String?
+  favorite Boolean @default(false)
+}
+
+// --- Guion del "no": respuestas ya decididas en frío. ---
+model NoScript {
+  id      String @id @default(cuid())
+  trigger String // "te ofrecen cerveza"
+  reply   String // la respuesta decidida
+  order   Int    @default(0)
+}
+
+// --- Recordatorios (v2: respaldados por Google Calendar). ---
+model Reminder {
+  id             String  @id @default(cuid())
+  kind           String // planning-viernes | planning-domingo | pastillas | agua
+  label          String
+  schedule       String // RRULE
+  calendarBacked Boolean @default(false)
+  active         Boolean @default(true)
+}
