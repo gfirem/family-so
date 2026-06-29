@@ -1,10 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // El cliente de Prisma 7 y los SDK de Node se externalizan en el server.
+  // The Prisma 7 client and Node SDKs are externalized on the server.
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "pg"],
   eslint: {
-    // El lint se corre aparte; no bloquea el build en Vercel.
+    // Linting runs separately; it does not block the build on Vercel.
     ignoreDuringBuilds: true,
   },
 };

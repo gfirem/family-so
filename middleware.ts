@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import { authConfig } from "@/auth.config";
 
-// El middleware usa la config edge-safe (sin DB) para proteger rutas.
+// The middleware uses the edge-safe config (no DB) to protect routes.
 export default NextAuth(authConfig).auth;
 
 export const config = {

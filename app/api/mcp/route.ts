@@ -3,10 +3,10 @@ import { assistantTools, toolsByName } from "@/lib/assistant-tools";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// Servidor MCP (Model Context Protocol) sobre HTTP/JSON-RPC.
-// Expone los datos de family-so como herramientas para que Claude (u otro
-// cliente MCP) pueda leerlos/escribirlos desde afuera de la app.
-// Se autentica con un bearer token (MCP_TOKEN).
+// MCP (Model Context Protocol) server over HTTP/JSON-RPC.
+// Exposes family-so data as tools so that Claude (or another
+// MCP client) can read/write it from outside the app.
+// Authenticated with a bearer token (MCP_TOKEN).
 
 const PROTOCOL_VERSION = "2025-06-18";
 
@@ -33,7 +33,7 @@ async function handleOne(msg: JsonRpc): Promise<object | null> {
       });
 
     case "notifications/initialized":
-      return null; // notificación: sin respuesta
+      return null; // notification: no response
 
     case "ping":
       return result(msg.id, {});
@@ -97,11 +97,11 @@ export async function POST(req: Request) {
   return Response.json(r);
 }
 
-// Descubrimiento básico: indica que el endpoint MCP existe (no soporta stream GET).
+// Basic discovery: signals that the MCP endpoint exists (no GET stream support).
 export function GET() {
   return Response.json({
     name: "family-so",
-    transport: "streamable-http (json-rpc por POST)",
+    transport: "streamable-http (json-rpc over POST)",
     protocolVersion: PROTOCOL_VERSION,
   });
 }

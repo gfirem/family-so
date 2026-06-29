@@ -14,7 +14,7 @@ export default async function AlimentacionPage() {
   const meals = recipes.filter((r) => r.approved && !r.isShake);
 
   const dayMap = new Map(week.mealPlan?.days.map((d) => [d.day, d]) ?? []);
-  const recetaItems = week.shoppingItems.filter((i) => i.source === "receta").length;
+  const recipeItems = week.shoppingItems.filter((i) => i.source === "receta").length;
 
   return (
     <>
@@ -24,7 +24,7 @@ export default async function AlimentacionPage() {
         subtitle="1 licuado + 2 comidas reales (≥30 g proteína) · ventana 8 AM – 6 PM."
       />
 
-      {/* Plan de la semana */}
+      {/* Week plan */}
       <Card className="mb-5 overflow-x-auto">
         <SectionTitle>Plan de la semana</SectionTitle>
         {shakes.length === 0 && meals.length === 0 ? (
@@ -67,7 +67,7 @@ export default async function AlimentacionPage() {
             🛒 Generar lista del mercado
           </ActionButton>
           <span className="text-xs text-[var(--color-muted)]">
-            {recetaItems} items de receta en la lista
+            {recipeItems} items de receta en la lista
           </span>
         </div>
       </Card>
@@ -80,7 +80,7 @@ export default async function AlimentacionPage() {
         </HealthNote>
       </div>
 
-      {/* Banco de recetas */}
+      {/* Recipe bank */}
       <Card>
         <SectionTitle>Banco de recetas</SectionTitle>
         <ul className="divide-y divide-[var(--color-line)]">

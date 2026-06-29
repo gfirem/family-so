@@ -42,7 +42,7 @@ export async function deleteGoal(id: string) {
   refresh();
 }
 
-// Arrastra una meta al trimestre siguiente: la marca "carried" y crea una nueva abierta.
+// Carries a goal to the next quarter: marks it "carried" and creates a new open one.
 export async function carryToNextQuarter(id: string) {
   await requireUser();
   const goal = await db.goal.findUnique({ where: { id } });

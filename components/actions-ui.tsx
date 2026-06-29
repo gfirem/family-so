@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { useFormStatus } from "react-dom";
 
-// Checkbox que guarda solo al togglear (llama a un server action recibido por prop).
+// Checkbox that saves only when toggled (calls a server action received via prop).
 export function CheckItem({
   id,
   checked,
@@ -43,7 +43,7 @@ export function CheckItem({
   );
 }
 
-// Botón que dispara un server action con un id (borrar, cerrar, etc.).
+// Button that triggers a server action with an id (delete, close, etc.).
 export function ActionButton({
   id,
   action,
@@ -73,7 +73,7 @@ export function ActionButton({
   );
 }
 
-// Botón de submit con estado pending (para formularios con server actions).
+// Submit button with pending state (for forms with server actions).
 export function SubmitButton({
   children,
   className = "btn-primary",

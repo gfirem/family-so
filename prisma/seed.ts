@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 
-// Carga simple de .env para correr el seed sin dependencias extra.
+// Simple .env loader to run the seed without extra dependencies.
 import fs from "node:fs";
 import path from "node:path";
 if (!process.env.DATABASE_URL) {
@@ -18,7 +18,7 @@ if (!process.env.DATABASE_URL) {
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const db = new PrismaClient({ adapter });
 
-// Los 12 pilares de la vida (CONTEXT.md: expandir a estos después de los 3 clave).
+// The 12 pillars of life (CONTEXT.md: expand to these after the 3 key ones).
 const PILLARS = [
   "Salud física",
   "Salud mental y emocional",
@@ -34,7 +34,7 @@ const PILLARS = [
   "Contribución y comunidad",
 ];
 
-// Hábitos de reference/plan-de-habitos.md. Las 4 keystone van marcadas.
+// Habits from reference/plan-de-habitos.md. The 4 keystone ones are flagged.
 const HABITS: { name: string; keystone?: boolean; identity?: string }[] = [
   {
     name: "Dormiste 7.5 h / cumpliste 10-3-2-1-0",
@@ -68,7 +68,7 @@ const HABITS: { name: string; keystone?: boolean; identity?: string }[] = [
   { name: "Hablaste con la familia" },
 ];
 
-// Estructura del día de reference/plan-del-dia.md.
+// Day structure from reference/plan-del-dia.md.
 const DAY_BLOCKS = [
   {
     time: "5:00–6:00 AM",
@@ -103,7 +103,7 @@ const SLEEP_RULES = [
   { n: "0", rule: "veces que repetís la alarma por la mañana" },
 ];
 
-// Banco de planes (reference: miércoles afuera, salidas baratas).
+// Plan bank (reference: Wednesday out, cheap outings).
 const PLAN_IDEAS = [
   { title: "Trabajar desde un parque o río (miércoles afuera)", category: "conexion", cost: "gratis" },
   { title: "Caminata + mate en el río el fin de semana", category: "rio", cost: "gratis" },
@@ -112,7 +112,7 @@ const PLAN_IDEAS = [
   { title: "Día de club: frío/contraste/sauna (desde fin de julio)", category: "salida", cost: "membresía" },
 ];
 
-// Guion del "no": respuestas decididas en frío (bloque 6 del domingo).
+// "No" script: replies decided in advance (cold), Sunday block 6.
 const NO_SCRIPTS = [
   { trigger: "Te ofrecen una cerveza", reply: "Hoy no tomo, estoy en un plan. Pedime un agua con gas y limón." },
   { trigger: "Insisten con el postre / dulce", reply: "Gracias, ya cerré mi ventana de comida. Disfrútenlo ustedes." },
@@ -120,8 +120,8 @@ const NO_SCRIPTS = [
   { trigger: "Surge un plan sin avisar el finde", reply: "Ya tenemos nuestro plan para hoy; la próxima coordinamos antes." },
 ];
 
-// Recetas 1-2-12 de arranque. El recetario completo (PDF) se carga después;
-// estas quedan aprobadas como semilla para que el plan semanal funcione ya.
+// Starter 1-2-12 recipes. The full recipe book (PDF) is loaded later;
+// these are approved as seed data so the weekly plan works right away.
 const RECIPES = [
   { name: "Licuado de proteína base (vainilla)", isShake: true, proteinG: 30, tags: ["licuado"], prepStyle: "minimalist", approved: true, notes: "Proteína + leche/agua + hielo. Reemplaza la merienda dulce." },
   { name: "Licuado verde sin lácteos", isShake: true, proteinG: 28, tags: ["licuado", "sin-lacteos"], prepStyle: "minimalist", approved: true, notes: "Proteína vegetal + espinaca + banana + bebida de almendras." },
@@ -133,7 +133,7 @@ const RECIPES = [
 ];
 
 async function main() {
-  // --- Usuarios (login real). Cambiá las contraseñas tras el primer ingreso. ---
+  // --- Users (real login). Change the passwords after the first sign-in. ---
   const defaultPass = await bcrypt.hash("familia2026", 10);
   await db.user.upsert({
     where: { email: "guille@family.so" },
@@ -147,7 +147,7 @@ async function main() {
   });
   const users = await db.user.findMany();
 
-  // --- Pilares ---
+  // --- Pillars ---
   for (let i = 0; i < PILLARS.length; i++) {
     await db.pillar.upsert({
       where: { name: PILLARS[i] },
@@ -156,7 +156,7 @@ async function main() {
     });
   }
 
-  // --- Hábitos por persona (los mismos para ambos como base) ---
+  // --- Habits per person (the same for both as a baseline) ---
   for (const user of users) {
     const existing = await db.habit.count({ where: { ownerId: user.id } });
     if (existing === 0) {
@@ -175,7 +175,7 @@ async function main() {
     }
   }
 
-  // --- Estructura del día (singleton) ---
+  // --- Day structure (singleton) ---
   const dayCount = await db.dayStructure.count();
   if (dayCount === 0) {
     await db.dayStructure.create({
@@ -183,28 +183,28 @@ async function main() {
     });
   }
 
-  // --- Banco de planes ---
+  // --- Plan bank ---
   if ((await db.planIdea.count()) === 0) {
     for (const p of PLAN_IDEAS) await db.planIdea.create({ data: p });
   }
 
-  // --- Guion del "no" ---
+  // --- "No" script ---
   if ((await db.noScript.count()) === 0) {
     for (let i = 0; i < NO_SCRIPTS.length; i++) {
       await db.noScript.create({ data: { ...NO_SCRIPTS[i], order: i } });
     }
   }
 
-  // --- Recetas semilla ---
+  // --- Seed recipes ---
   if ((await db.recipe.count()) === 0) {
     for (const r of RECIPES) await db.recipe.create({ data: r });
   }
 
-  console.log("Seed completo:", {
-    usuarios: users.length,
-    pilares: PILLARS.length,
-    habitos: HABITS.length,
-    recetas: RECIPES.length,
+  console.log("Seed complete:", {
+    users: users.length,
+    pillars: PILLARS.length,
+    habits: HABITS.length,
+    recipes: RECIPES.length,
   });
 }
 

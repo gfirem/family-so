@@ -22,9 +22,9 @@ export default async function PlanningPage() {
   const partners = await getPartners();
   const whoOptions = ["Ambos", ...partners.map((p) => p.name)];
 
-  const entrenos = week.activities.filter((a) => a.type === "entreno");
-  const conexion = week.activities.filter((a) => a.type === "conexion");
-  const tareas = week.activities.filter((a) => a.type === "tarea");
+  const workouts = week.activities.filter((a) => a.type === "entreno");
+  const connectionPlans = week.activities.filter((a) => a.type === "conexion");
+  const tasks = week.activities.filter((a) => a.type === "tarea");
 
   return (
     <>
@@ -39,7 +39,7 @@ export default async function PlanningPage() {
         <strong> compras, las comidas y las actividades</strong> de la semana.
       </p>
 
-      {/* BLOQUE 1 */}
+      {/* BLOCK 1 */}
       <Block n={1} title="Mirar atrás" desc="¿Cumplimos entreno, comida, sueño? ¿Dónde se cayó el plan? Sin reproches: buscamos el patrón.">
         <form action={saveLookback} className="space-y-3">
           <input type="hidden" name="weekId" value={week.id} />
@@ -54,7 +54,7 @@ export default async function PlanningPage() {
         </form>
       </Block>
 
-      {/* BLOQUE 2 */}
+      {/* BLOCK 2 */}
       <Block n={2} title="Recordar el norte" desc="Una frase que nos recentre.">
         <form action={saveNorthStar} className="space-y-3">
           <input type="hidden" name="weekId" value={week.id} />
@@ -68,16 +68,16 @@ export default async function PlanningPage() {
         </form>
       </Block>
 
-      {/* BLOQUE 3 */}
+      {/* BLOCK 3 */}
       <Block n={3} title="Entrenamiento" desc="Confirmar días, horas y lugar. Lo que no tiene hora, no sucede.">
         <ActivityList
-          items={entrenos}
+          items={workouts}
           emptyText="Todavía no hay entrenos esta semana."
         />
         <AddActivityForm weekId={week.id} type="entreno" whoOptions={whoOptions} placeholder="Ej: Caminadora 30 min" />
       </Block>
 
-      {/* BLOQUE 4 */}
+      {/* BLOCK 4 */}
       <Block n={4} title="Alimentación" desc="Elegir las recetas de la semana (rotando para no aburrirnos) y armar la lista del mercado.">
         <Link href="/alimentacion" className="btn-primary mb-4">
           🥗 Armar el plan 1-2-12 →
@@ -113,16 +113,16 @@ export default async function PlanningPage() {
         </form>
       </Block>
 
-      {/* BLOQUE 5 */}
+      {/* BLOCK 5 */}
       <Block n={5} title="Planes y conexión" desc="El miércoles afuera y el plan del fin de semana, con lugar y hora. Esto nos blinda de las presiones sociales.">
-        <ActivityList items={conexion} emptyText="Sin planes de conexión todavía." />
+        <ActivityList items={connectionPlans} emptyText="Sin planes de conexión todavía." />
         <AddActivityForm weekId={week.id} type="conexion" whoOptions={whoOptions} placeholder="Ej: Trabajar desde el río" />
         <Link href="/planes" className="mt-3 inline-block text-sm font-medium text-[var(--color-brand-700)]">
           Ver el banco de planes →
         </Link>
       </Block>
 
-      {/* BLOQUE 6 */}
+      {/* BLOCK 6 */}
       <Block n={6} title="Anticipar baches" desc="¿Qué viene que nos pueda descarrilar? Decidir EN FRÍO: 'vamos pero no tomamos', 'nos vamos a las 9'.">
         {week.events.length > 0 && (
           <ul className="mb-3 space-y-2">
@@ -159,13 +159,13 @@ export default async function PlanningPage() {
         </Link>
       </Block>
 
-      {/* BLOQUE 7 */}
+      {/* BLOCK 7 */}
       <Block n={7} title="Tareas claras" desc="Quién compra, quién cocina qué día, quién investiga el plan del finde.">
-        <ActivityList items={tareas} emptyText="Sin tareas asignadas todavía." showWho />
+        <ActivityList items={tasks} emptyText="Sin tareas asignadas todavía." showWho />
         <AddActivityForm weekId={week.id} type="tarea" whoOptions={whoOptions} placeholder="Ej: Comprar el sábado" />
       </Block>
 
-      {/* RESULTADO */}
+      {/* RESULT */}
       <Card className="mt-6 bg-[var(--color-brand-600)] text-white">
         <h2 className="text-lg font-bold">Resultado de la semana</h2>
         <p className="mt-1 text-sm text-[var(--color-brand-100)]">
