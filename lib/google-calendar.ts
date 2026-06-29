@@ -7,7 +7,8 @@ import { auth } from "@/auth";
 const EVENTS_URL = "https://www.googleapis.com/calendar/v3/calendars/primary/events";
 
 // Time zone used for timed/recurring events. Set APP_TIMEZONE (IANA name).
-export const APP_TIMEZONE = process.env.APP_TIMEZONE ?? "America/Mexico_City";
+// `||` so an empty string falls back to the default (Austin, TX).
+export const APP_TIMEZONE = process.env.APP_TIMEZONE || "America/Chicago";
 
 export type CalendarTime =
   | { date: string } // all-day (YYYY-MM-DD)
