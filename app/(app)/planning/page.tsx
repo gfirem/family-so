@@ -16,8 +16,18 @@ import {
   addEvent,
   deleteEvent,
 } from "./actions";
+import {
+  addActivityToCalendar,
+  addEventToCalendar,
+  createWeeklyReminders,
+} from "./calendar-actions";
 
-export default async function PlanningPage() {
+export default async function PlanningPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cal?: string; msg?: string }>;
+}) {
+  const { cal, msg } = await searchParams;
   const week = await getCurrentWeek();
   const partners = await getPartners();
   const whoOptions = ["Ambos", ...partners.map((p) => p.name)];
@@ -34,10 +44,21 @@ export default async function PlanningPage() {
         subtitle={`15 min, juntos · Semana del ${formatDateEs(week.weekOf)}`}
       />
 
-      <p className="mb-6 rounded-2xl bg-[var(--color-brand-50)] p-4 text-sm text-[var(--color-brand-700)]">
+      <p className="mb-4 rounded-2xl bg-[var(--color-brand-50)] p-4 text-sm text-[var(--color-brand-700)]">
         El que tiene su propio plan no se suma al plan del otro. Estos 7 bloques producen las
         <strong> compras, las comidas y las actividades</strong> de la semana.
       </p>
+
+      {cal === "ok" && (
+        <p className="mb-4 rounded-xl bg-[var(--color-brand-100)] px-3 py-2 text-sm text-[var(--color-brand-700)]">
+          ✓ Agregado a Google Calendar.
+        </p>
+      )}
+      {cal === "err" && (
+        <p className="mb-4 rounded-xl bg-red-50 px-3 py-2 text-sm text-[var(--color-danger)]">
+          No se pudo agregar al Calendar. {msg ?? ""}
+        </p>
+      )}
 
       {/* BLOCK 1 */}
       <Block n={1} title="Mirar atrás" desc="¿Cumplimos entreno, comida, sueño? ¿Dónde se cayó el plan? Sin reproches: buscamos el patrón.">
@@ -132,9 +153,14 @@ export default async function PlanningPage() {
                   <span className="text-sm font-medium">
                     {e.place || e.type} · {isoDate(e.date)}
                   </span>
-                  <ActionButton id={e.id} action={deleteEvent}>
-                    ✕
-                  </ActionButton>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <ActionButton id={e.id} action={addEventToCalendar} className="text-sm hover:opacity-70">
+                      📅
+                    </ActionButton>
+                    <ActionButton id={e.id} action={deleteEvent}>
+                      ✕
+                    </ActionButton>
+                  </div>
                 </div>
                 {e.plan && <p className="mt-1 text-sm text-[var(--color-brand-700)]">→ {e.plan}</p>}
                 {e.invitees.length > 0 && (
@@ -165,8 +191,20 @@ export default async function PlanningPage() {
         <AddActivityForm weekId={week.id} type="tarea" whoOptions={whoOptions} placeholder="Ej: Comprar el sábado" />
       </Block>
 
+      {/* Google Calendar reminders */}
+      <Card className="mt-6">
+        <h2 className="font-bold">📅 Recordatorios en Google Calendar</h2>
+        <p className="mt-1 text-sm text-[var(--color-muted)]">
+          Crea dos eventos recurrentes: el aviso del <strong>viernes</strong> para pensar el finde y el{" "}
+          <strong>planning del domingo</strong>. Tocá 📅 en cualquier actividad o bache para mandarlo al Calendar.
+        </p>
+        <form action={createWeeklyReminders} className="mt-3">
+          <SubmitButton className="btn-ghost">Crear recordatorios recurrentes</SubmitButton>
+        </form>
+      </Card>
+
       {/* RESULT */}
-      <Card className="mt-6 bg-[var(--color-brand-600)] text-white">
+      <Card className="mt-4 bg-[var(--color-brand-600)] text-white">
         <h2 className="text-lg font-bold">Resultado de la semana</h2>
         <p className="mt-1 text-sm text-[var(--color-brand-100)]">
           {week.shoppingItems.length} compras · {week.activities.length} actividades ·{" "}
@@ -234,9 +272,18 @@ function ActivityList({
         return (
           <li key={a.id} className="flex items-center justify-between">
             <CheckItem id={a.id} checked={a.done} label={a.title} sub={meta || undefined} toggle={toggleActivity} />
-            <ActionButton id={a.id} action={deleteActivity}>
-              ✕
-            </ActionButton>
+            <div className="flex shrink-0 items-center gap-2">
+              <ActionButton
+                id={a.id}
+                action={addActivityToCalendar}
+                className="text-sm hover:opacity-70"
+              >
+                📅
+              </ActionButton>
+              <ActionButton id={a.id} action={deleteActivity}>
+                ✕
+              </ActionButton>
+            </div>
           </li>
         );
       })}
