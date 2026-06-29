@@ -9,7 +9,7 @@ function refresh() {
   revalidatePath("/");
 }
 
-// Marca/desmarca un hábito en una fecha. Crea el log si no existe.
+// Checks/unchecks a habit on a date. Creates the log if it does not exist.
 export async function toggleHabitLog(habitId: string, ownerId: string, dateIso: string) {
   await requireUser();
   const date = new Date(dateIso);

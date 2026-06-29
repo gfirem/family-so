@@ -1,7 +1,7 @@
 import type { NextAuthConfig } from "next-auth";
 
-// Config edge-safe (sin DB ni bcrypt) para el middleware. La lógica de
-// credenciales vive en auth.ts, que corre en Node.
+// Edge-safe config (no DB or bcrypt) for the middleware. The credentials
+// logic lives in auth.ts, which runs on Node.
 export const authConfig = {
   pages: {
     signIn: "/login",
@@ -13,7 +13,7 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isLogin = nextUrl.pathname.startsWith("/login");
-      // El endpoint MCP se autentica con su propio token, no con sesión.
+      // The MCP endpoint authenticates with its own token, not with a session.
       const isMcp = nextUrl.pathname.startsWith("/api/mcp");
       if (isMcp) return true;
       if (isLogin) {

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 
-// Devuelve el usuario logueado (Guille / China) o redirige a /login.
+// Returns the logged-in user (Guille / China) or redirects to /login.
 export async function requireUser() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -11,7 +11,7 @@ export async function requireUser() {
   return user;
 }
 
-// Lista de las dos personas, para selectores y vistas comparadas.
+// List of the two people, for selectors and comparison views.
 export async function getPartners() {
   return db.user.findMany({ orderBy: { createdAt: "asc" } });
 }

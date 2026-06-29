@@ -1,12 +1,12 @@
 import path from "node:path";
 import { defineConfig } from "prisma/config";
 
-// Prisma 7 mueve la URL de conexión fuera del schema. La CLI (migrate, db push,
-// introspect) la lee desde acá; el runtime usa el driver adapter en lib/db.ts.
-// La connection string vive en DATABASE_URL (.env local / variables de Vercel-Neon).
+// Prisma 7 moves the connection URL out of the schema. The CLI (migrate, db push,
+// introspect) reads it from here; the runtime uses the driver adapter in lib/db.ts.
+// The connection string lives in DATABASE_URL (local .env / Vercel-Neon variables).
 
 if (!process.env.DATABASE_URL) {
-  // Carga .env en local sin depender de dotenv como dependencia de producción.
+  // Load .env locally without relying on dotenv as a production dependency.
   try {
     const fs = require("node:fs");
     const envPath = path.join(process.cwd(), ".env");
@@ -17,7 +17,7 @@ if (!process.env.DATABASE_URL) {
       }
     }
   } catch {
-    // sin .env (p. ej. en Vercel) las variables ya vienen del entorno
+    // without .env (e.g. on Vercel) the variables already come from the environment
   }
 }
 

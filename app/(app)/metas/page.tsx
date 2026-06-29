@@ -58,7 +58,7 @@ export default async function MetasPage({
         subtitle="Primero clavar los 3-4 hábitos clave; después expandir a los 12 pilares. No al revés."
       />
 
-      {/* Navegación de trimestre */}
+      {/* Quarter navigation */}
       <div className="mb-5 flex items-center justify-between">
         <Link href={`/metas?y=${prev.year}&q=${prev.quarter}`} className="btn-ghost">
           ← Q{prev.quarter} {prev.year}
@@ -76,7 +76,7 @@ export default async function MetasPage({
         </Link>
       </div>
 
-      {/* Metas por pilar */}
+      {/* Goals by pillar */}
       {goals.length === 0 ? (
         <Card className="mb-5">
           <p className="text-sm text-[var(--color-muted)]">
@@ -148,7 +148,7 @@ export default async function MetasPage({
         </div>
       )}
 
-      {/* Nueva meta */}
+      {/* New goal */}
       <Card>
         <SectionTitle>Escribir una meta</SectionTitle>
         <form action={addGoal} className="space-y-2">

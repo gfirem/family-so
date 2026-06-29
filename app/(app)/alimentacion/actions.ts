@@ -10,7 +10,7 @@ function refresh() {
   revalidatePath("/");
 }
 
-// --- Banco de recetas ---
+// --- Recipe bank ---
 export async function addRecipe(formData: FormData) {
   await requireUser();
   const name = String(formData.get("name") ?? "").trim();
@@ -48,7 +48,7 @@ export async function deleteRecipe(id: string) {
   refresh();
 }
 
-// --- Plan semanal ---
+// --- Weekly plan ---
 async function ensureMealPlan(weekId: string) {
   const mp = await db.mealPlan.findUnique({ where: { weekId } });
   if (mp) return mp;
@@ -79,7 +79,7 @@ export async function setMealPlanDay(
   refresh();
 }
 
-// Genera la lista del mercado a partir de las recetas del plan de la semana.
+// Generates the market list from the recipes in the week plan.
 export async function generateMarketList(weekId: string) {
   await requireUser();
   const week = await db.week.findUnique({

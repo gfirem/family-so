@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   const body = (await req.json()) as { messages: ClientMessage[] };
   const client = new Anthropic();
 
-  // Historial en formato de la Messages API.
+  // History in the Messages API format.
   const messages: Anthropic.MessageParam[] = body.messages.map((m) => ({
     role: m.role,
     content: m.content,
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
   const tools = anthropicToolSchemas();
 
   try {
-    // Loop manual de tool use (acotado).
+    // Manual tool-use loop (bounded).
     for (let i = 0; i < 6; i++) {
       const response = await client.messages.create({
         model: "claude-opus-4-8",
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
       });
 
       if (response.stop_reason === "tool_use") {
-        // Ejecutar cada tool y devolver los resultados juntos.
+        // Run each tool and return the results together.
         messages.push({ role: "assistant", content: response.content });
         const toolResults: Anthropic.ToolResultBlockParam[] = [];
         for (const block of response.content) {
@@ -84,7 +84,7 @@ export async function POST(req: Request) {
         continue;
       }
 
-      // Respuesta final: juntar el texto.
+      // Final response: join the text.
       const text = response.content
         .filter((b): b is Anthropic.TextBlock => b.type === "text")
         .map((b) => b.text)

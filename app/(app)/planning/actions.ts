@@ -9,7 +9,7 @@ function refresh() {
   revalidatePath("/");
 }
 
-// Bloque 1 — mirar atrás: "qué nos descarriló".
+// Block 1 — look back: "what derailed us".
 export async function saveLookback(formData: FormData) {
   await requireUser();
   const weekId = String(formData.get("weekId"));
@@ -18,7 +18,7 @@ export async function saveLookback(formData: FormData) {
   refresh();
 }
 
-// Bloque 2 — recordar el norte.
+// Block 2 — remember the north star.
 export async function saveNorthStar(formData: FormData) {
   await requireUser();
   const weekId = String(formData.get("weekId"));
@@ -27,7 +27,7 @@ export async function saveNorthStar(formData: FormData) {
   refresh();
 }
 
-// Bloques 3, 5 y 7 — actividades (entreno, conexión, tareas claras).
+// Blocks 3, 5 and 7 — activities (workout, connection, clear tasks).
 export async function addActivity(formData: FormData) {
   await requireUser();
   const weekId = String(formData.get("weekId"));
@@ -60,7 +60,7 @@ export async function deleteActivity(id: string) {
   refresh();
 }
 
-// Bloque 4 — alimentación: items de la lista de compras (manuales).
+// Block 4 — nutrition: shopping list items (manual).
 export async function addShoppingItem(formData: FormData) {
   await requireUser();
   const weekId = String(formData.get("weekId"));
@@ -92,7 +92,7 @@ export async function deleteShopping(id: string) {
   refresh();
 }
 
-// Bloque 6 — anticipar baches: evento social con plan decidido en frío.
+// Block 6 — anticipate bumps: social event with a plan decided in advance.
 export async function addEvent(formData: FormData) {
   await requireUser();
   const weekId = String(formData.get("weekId"));

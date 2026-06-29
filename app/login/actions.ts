@@ -17,6 +17,6 @@ export async function loginAction(
     if (error instanceof AuthError) {
       return "Email o contraseña incorrectos.";
     }
-    throw error; // re-lanzar el redirect de Next
+    throw error; // re-throw Next's redirect
   }
 }

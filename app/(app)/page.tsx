@@ -27,7 +27,7 @@ export default async function Dashboard() {
         </div>
       )}
 
-      {/* % de hábitos por persona */}
+      {/* Habit completion percentage per person */}
       <Card className="mb-5">
         <SectionTitle>Hábitos cumplidos esta semana</SectionTitle>
         <div className="space-y-4">
@@ -56,7 +56,7 @@ export default async function Dashboard() {
         </Link>
       </Card>
 
-      {/* Peso */}
+      {/* Weight */}
       <Card className="mb-5">
         <SectionTitle>Peso</SectionTitle>
         <div className="grid grid-cols-2 gap-4">
@@ -97,7 +97,7 @@ export default async function Dashboard() {
         </Link>
       </Card>
 
-      {/* Qué nos descarriló */}
+      {/* What derailed us */}
       <Card className="mb-5">
         <SectionTitle>¿Qué nos descarriló?</SectionTitle>
         {week.notes ? (
@@ -109,7 +109,7 @@ export default async function Dashboard() {
         )}
       </Card>
 
-      {/* Resumen de la semana */}
+      {/* Week summary */}
       <Card>
         <SectionTitle>La semana de un vistazo</SectionTitle>
         <div className="grid grid-cols-3 gap-3 text-center">
