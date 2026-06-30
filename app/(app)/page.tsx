@@ -119,7 +119,7 @@ export default async function Dashboard() {
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link href="/planning" className="btn-primary">
-            🗓️ Planning del domingo
+            🗓️ Planning
           </Link>
           <Link href="/nutrition" className="btn-ghost">
             🥗 Plan de comida

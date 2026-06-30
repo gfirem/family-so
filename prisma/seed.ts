@@ -284,6 +284,13 @@ async function main() {
   });
   const users = await db.user.findMany();
 
+  // --- Family. Links the members and owns the shared (public) plannings.
+  // Existing weeks (scope "familia", ownerId null) become its shared planning. ---
+  let family = await db.family.findFirst();
+  if (!family) family = await db.family.create({ data: { name: "Mi familia" } });
+  await db.user.updateMany({ where: { familyId: null }, data: { familyId: family.id } });
+  await db.week.updateMany({ where: { familyId: null }, data: { familyId: family.id } });
+
   // --- Pillars ---
   for (let i = 0; i < PILLARS.length; i++) {
     await db.pillar.upsert({
