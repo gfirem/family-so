@@ -32,7 +32,8 @@
 
 - **User** — `id`, `name` (Guille / esposa), `role`.
 - **Pillar** — `id`, `name` (los 12 pilares), `active`.
-- **Goal** — `id`, `year`, `quarter` (Q1–Q4), `pillarId`, `text`, `status` (`open` / `done` / `carried`), `createdAt`, `closedAt`.
+- **Goal** — `id`, `year`, `quarter` (`null` = meta del año; 1–4 = trimestral), `pillarId`, `text`, `status` (`open` / `done` / `carried`), `visibility` (`private` = personal, solo la ve su dueño / `family` = compartida), `ownerId`, `createdAt`, `closedAt`.
+- **QuarterReview** — cierre/análisis de un período: `year`, `quarter` (`null` = cierre anual; 1–4 = cierre trimestral), `visibility`, `ownerId`, y los campos del cierre (`wins`, `challenges`, `learnings`, `nextFocus`). Uno por período + alcance.
 - **Habit** — `id`, `ownerId`, `name`, `identityLink`, `isKeystone`, `active`, `createdAt`.
 - **HabitLog** — `id`, `habitId`, `date`, `done` (bool). (Derivar racha y total.)
 - **DayStructure** — bloques horarios + reglas de sueño (config, no por día).

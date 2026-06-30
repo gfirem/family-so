@@ -23,6 +23,9 @@ Etiquetas: **[v1]** corazón del sistema · **[v2]** recordatorios e integracion
 ## Metas y trimestres
 - [v1] Escribir **metas del año** y dividirlas por **trimestre**, asignadas a un pilar.
 - [v1] Marcar avance; al cambiar de trimestre, **cerrar las viejas y abrir nuevas**.
+- [v1] **Metas personales (privadas) vs familiares (compartidas)**: las privadas solo las ve su dueño.
+- [v1] **Vista de año** (metas grandes + resumen de los 4 trimestres) y **vista de trimestre** para ejecutar y ajustar.
+- [v1] **Cierre por período**: análisis trimestral y anual (lo que salió bien, lo difícil, aprendizajes, foco siguiente).
 - [v2] Recordatorio de que hay **cierre/apertura de trimestre pendiente**.
 
 ## Estructura del día
