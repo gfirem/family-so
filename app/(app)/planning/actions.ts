@@ -1,12 +1,34 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
+import { ensurePlanning, PLANNING_SCOPES, type PlanningScope } from "@/lib/week";
+import { parseWeekOf } from "@/lib/dates";
 
+// Revalidate the planning index and any open planning ("layout" covers the
+// nested /planning/[id] route too), plus the dashboard.
 function refresh() {
-  revalidatePath("/planning");
+  revalidatePath("/planning", "layout");
   revalidatePath("/");
+}
+
+// Creates (or opens, if it already exists) a planning for a week + scope and
+// navigates to its editor. Private scopes are owned by the current user.
+export async function createPlanning(formData: FormData) {
+  const me = await requireUser();
+  const scopeRaw = String(formData.get("scope") ?? "");
+  const def = PLANNING_SCOPES.find((s) => s.scope === scopeRaw);
+  if (!def) return;
+  const scope = def.scope as PlanningScope;
+  const weekOf = parseWeekOf(String(formData.get("weekOf") ?? ""));
+  const planning = await ensurePlanning({
+    weekOf,
+    scope,
+    ownerId: def.private ? me.id : null,
+  });
+  redirect(`/planning/${planning.id}`);
 }
 
 // Block 1 — look back: "what derailed us".

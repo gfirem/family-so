@@ -14,7 +14,7 @@ type NavLink = {
 
 const LINKS: NavLink[] = [
   { href: "/", label: "Tablero", icon: "📊" },
-  { href: "/planning", label: "Domingo", icon: "🗓️" },
+  { href: "/planning", label: "Planning", icon: "🗓️" },
   {
     href: "/nutrition",
     label: "Comida",
@@ -31,6 +31,7 @@ const LINKS: NavLink[] = [
   { href: "/day", label: "El día", icon: "🌅" },
   { href: "/plans", label: "Planes", icon: "🌳" },
   { href: "/chat", label: "Chat", icon: "💬" },
+  { href: "/settings", label: "Ajustes", icon: "⚙️" },
 ];
 
 function isActive(pathname: string, href: string) {
