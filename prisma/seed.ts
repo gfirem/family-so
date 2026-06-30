@@ -312,6 +312,44 @@ async function main() {
     }
   }
 
+  // --- Default time-of-day schedules + placing habits into a moment ---
+  // Mirrors the 20260630120100_seed_default_schedules data migration so a fresh
+  // seed lands in the same shape. Organising habits by moment is the contextual
+  // cue behind habit stacking and implementation intentions.
+  const DEFAULT_SCHEDULES = [
+    { name: "Mañana", emoji: "🌅", atTime: "07:30" },
+    { name: "Mediodía", emoji: "☀️", atTime: "13:00" },
+    { name: "Noche", emoji: "🌙", atTime: "21:00" },
+  ];
+  // Keyword → moment. First match wins; default is "Mediodía".
+  const MOMENT_RULES: { moment: string; test: RegExp }[] = [
+    { moment: "Noche", test: /dorm|10-3-2-1-0|alcohol|ventana|estudi|basura|familia/i },
+    { moment: "Mañana", test: /entren|pastilla|licuado|perro/i },
+    { moment: "Mediodía", test: /azúcar|azucar|chatarra|aspir|cant/i },
+  ];
+  const momentFor = (name: string) =>
+    MOMENT_RULES.find((r) => r.test.test(name))?.moment ?? "Mediodía";
+
+  for (const user of users) {
+    const scheduleCount = await db.habitSchedule.count({ where: { ownerId: user.id } });
+    if (scheduleCount === 0) {
+      for (let i = 0; i < DEFAULT_SCHEDULES.length; i++) {
+        await db.habitSchedule.create({
+          data: { ownerId: user.id, ...DEFAULT_SCHEDULES[i], order: i },
+        });
+      }
+    }
+    const schedules = await db.habitSchedule.findMany({ where: { ownerId: user.id } });
+    const byName = new Map(schedules.map((s) => [s.name, s.id]));
+    const unscheduled = await db.habit.findMany({
+      where: { ownerId: user.id, active: true, scheduleId: null },
+    });
+    for (const h of unscheduled) {
+      const id = byName.get(momentFor(h.name));
+      if (id) await db.habit.update({ where: { id: h.id }, data: { scheduleId: id } });
+    }
+  }
+
   // --- Day structure (singleton) ---
   const dayCount = await db.dayStructure.count();
   if (dayCount === 0) {
