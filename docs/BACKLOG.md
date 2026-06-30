@@ -35,10 +35,9 @@ Etiquetas: **[v1]** corazón del sistema · **[v2]** recordatorios e integracion
 - [v2] **Compartir invitaciones** a amigos (Calendar/correo, con confirmación). *Idea clave: si invitamos nosotros, el plan lo ponemos nosotros.*
 - [v1] **Guion del "no"**: respuestas ya decididas para declinar cerveza/comida, escritas en frío.
 
-## Entrenamiento (POR CONSTRUIR — se perdió con Marcela)
-- [v1] Plan en **casa** con el equipo disponible (caminadora, mancuernas, multifuncional).
-- [v2] Integrar **club** desde fin de julio (frío/contraste/sauna).
-- [v2] Registrar sesiones y enlazar con el tracker de hábitos.
+## Entrenamiento (externo — Freeletics)
+- El entrenamiento se hace en **Freeletics**; family-so NO construye un módulo de rutinas.
+- family-so solo **registra** que se entrenó, vía el hábito clave **"Entrenaste"** en el tracker.
 
 ## Fertilidad (meta grande del trimestre)
 - [v2] Checklist y calendario de **citas y pendientes** rumbo al proceso de FIV.

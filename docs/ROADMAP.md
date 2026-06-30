@@ -13,7 +13,7 @@ El objetivo es que la pareja pueda **planificar y medir** desde un solo lugar.
 ## v2 — Recordatorios e integraciones
 - Google Calendar: recordatorio del viernes, evento del domingo, pastillas, agua, horarios.
 - Invitaciones a amigos (Calendar/correo, con confirmación).
-- Módulo de entrenamiento (casa + club desde julio).
+- (Entrenamiento: externo en Freeletics — sin módulo; se trackea con el hábito "Entrenaste".)
 - Checklist y calendario de fertilidad.
 - Bitácora de decisiones.
 
