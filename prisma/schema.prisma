@@ -10,6 +10,19 @@ datasource db {
   provider = "postgresql"
 }
 
+// --- Family: groups the members and owns the shared (public) plannings. ---
+// Singleton today (the couple), but modeled so more members/options can be added.
+model Family {
+  id        String   @id @default(cuid())
+  name      String   @default("Mi familia")
+  image     String? // family photo (URL)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members User[]
+  weeks   Week[]
+}
+
 // --- People: Guille and China. Sign in with Google Workspace. ---
 model User {
   id        String   @id @default(cuid())
@@ -19,9 +32,13 @@ model User {
   role      String   @default("member")
   createdAt DateTime @default(now())
 
+  familyId String?
+  family   Family? @relation(fields: [familyId], references: [id], onDelete: SetNull)
+
   habits     Habit[]
   habitLogs  HabitLog[]
   weightLogs WeightLog[]
+  weeks      Week[]     @relation("OwnedWeeks") // plannings this person owns (private)
 }
 
 // --- The 12 pillars of life. ---
@@ -106,18 +123,33 @@ model DayStructure {
   updatedAt  DateTime @updatedAt
 }
 
-// --- Week: result of Sunday's planning. ---
+// --- Week: a planning for a given week. ---
+// A week can hold several plannings, distinguished by scope + owner:
+//   - scope "familia": shared/public planning (ownerId null) — drives the dashboard.
+//   - scope "personal" / "empresa": private planning owned by one member (ownerId set).
+// Only the family planning uses the full set of relations (shopping, meal plan,
+// events); private plannings stay lighter (north star + notes + activities).
 model Week {
   id        String   @id @default(cuid())
-  weekOf    DateTime @unique @db.Date // Monday of that week
+  weekOf    DateTime @db.Date // Monday of that week
+  scope     String   @default("familia") // familia | personal | empresa
   notes     String? // e.g. "qué nos descarriló"
   northStar String? // the north-star phrase recalled that Sunday
   createdAt DateTime @default(now())
+
+  familyId String?
+  family   Family? @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  ownerId  String? // null for the shared family planning
+  owner    User?   @relation("OwnedWeeks", fields: [ownerId], references: [id], onDelete: Cascade)
 
   shoppingItems ShoppingItem[]
   activities    Activity[]
   mealPlan      MealPlan?
   events        Event[]
+
+  @@unique([familyId, ownerId, scope, weekOf])
+  @@index([weekOf])
+  @@index([ownerId, scope])
 }
 
 // --- Item on a week's shopping list. ---

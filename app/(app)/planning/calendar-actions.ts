@@ -6,10 +6,11 @@ import { requireUser } from "@/lib/session";
 import { addDays, isoDate, startOfWeek } from "@/lib/dates";
 import { createCalendarEvent, APP_TIMEZONE, type CalendarResult } from "@/lib/google-calendar";
 
-// Redirects back to /planning with a result banner.
-function finish(result: CalendarResult): never {
-  if (result.ok) redirect("/planning?cal=ok");
-  redirect(`/planning?cal=err&msg=${encodeURIComponent(result.error ?? "Error")}`);
+// Redirects back to a planning (or the index) with a result banner.
+function finish(result: CalendarResult, planningId?: string): never {
+  const base = planningId ? `/planning/${planningId}` : "/planning";
+  if (result.ok) redirect(`${base}?cal=ok`);
+  redirect(`${base}?cal=err&msg=${encodeURIComponent(result.error ?? "Error")}`);
 }
 
 // Parses a free-text time like "9:00" or "18:30" into HH:MM, or null.
@@ -25,6 +26,7 @@ export async function addActivityToCalendar(id: string) {
   await requireUser();
   const activity = await db.activity.findUnique({ where: { id }, include: { week: true } });
   if (!activity) finish({ ok: false, error: "Actividad no encontrada" });
+  const planningId = activity!.weekId;
   const date = addDays(activity!.week.weekOf, activity!.day);
   const dayIso = isoDate(date);
   const hm = parseTime(activity!.time);
@@ -50,13 +52,14 @@ export async function addActivityToCalendar(id: string) {
       end: { date: isoDate(addDays(date, 1)) },
     });
   }
-  finish(result);
+  finish(result, planningId);
 }
 
 export async function addEventToCalendar(id: string) {
   await requireUser();
   const event = await db.event.findUnique({ where: { id } });
   if (!event) finish({ ok: false, error: "Evento no encontrado" });
+  const planningId = event!.weekId ?? undefined;
   const dayIso = isoDate(event!.date);
   const result = await createCalendarEvent({
     summary: event!.place ? `${event!.place} (${event!.type})` : event!.type,
@@ -66,7 +69,7 @@ export async function addEventToCalendar(id: string) {
     start: { date: dayIso },
     end: { date: isoDate(addDays(event!.date, 1)) },
   });
-  finish(result);
+  finish(result, planningId);
 }
 
 // Creates the two recurring planning reminders (Friday prompt + Sunday planning).
