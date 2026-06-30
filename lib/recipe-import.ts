@@ -155,10 +155,10 @@ export async function extractRecipesFromPdf(opts: {
   url?: string;
   base64?: string;
 }): Promise<ExtractedRecipe[]> {
+  if (!opts.base64 && !opts.url) throw new Error("Se requiere un PDF (url o base64).");
   const source: Anthropic.Base64PDFSource | Anthropic.URLPDFSource = opts.base64
     ? { type: "base64", media_type: "application/pdf", data: opts.base64 }
-    : { type: "url", url: opts.url! };
-  if (!opts.base64 && !opts.url) throw new Error("Se requiere un PDF (url o base64).");
+    : { type: "url", url: opts.url as string };
 
   return runExtraction([
     { type: "document", source },

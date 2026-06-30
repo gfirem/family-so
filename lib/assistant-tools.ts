@@ -266,7 +266,7 @@ export const assistantTools: ToolDef[] = [
   {
     name: "import_recipes_from_pdf",
     description:
-      "Reads a recipe book in PDF (from a public URL or base64) and imports ALL recipes into the bank (not approved). Returns the created recipe names.",
+      "Reads a recipe book in PDF and imports ALL recipes into the bank (not approved). Provide EITHER pdfUrl (public URL) OR pdfBase64. Returns the created recipe names.",
     inputSchema: {
       type: "object",
       properties: {

@@ -24,6 +24,8 @@ export default async function RecipesPage({
   searchParams: Promise<{ imported?: string }>;
 }) {
   const { imported } = await searchParams;
+  const importedCount = Number(imported);
+  const showImported = imported !== undefined && Number.isInteger(importedCount);
   const recipes = await db.recipe.findMany({
     orderBy: [{ category: "asc" }, { isShake: "desc" }, { name: "asc" }],
     include: { _count: { select: { ingredients: true } } },
@@ -46,9 +48,9 @@ export default async function RecipesPage({
       />
       <NutritionTabs />
 
-      {imported && (
+      {showImported && (
         <div className="mb-5 rounded-xl border border-[var(--color-brand-200)] bg-[var(--color-brand-50)] px-3 py-2 text-sm text-[var(--color-brand-700)]">
-          ✅ Se importaron {imported} receta(s). Revisalas y aprobalas para usarlas en el plan.
+          ✅ Se importaron {importedCount} receta(s). Revisalas y aprobalas para usarlas en el plan.
         </div>
       )}
 

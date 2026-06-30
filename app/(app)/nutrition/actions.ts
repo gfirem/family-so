@@ -216,6 +216,7 @@ export async function importRecipeFromUrl(formData: FormData) {
   } catch {
     redirect("/nutrition/import?error=import");
   }
+  if (count === 0) redirect("/nutrition/import?error=sin-recetas");
   refresh();
   redirect(`/nutrition/recipes?imported=${count}`);
 }
@@ -237,6 +238,7 @@ export async function importRecipeFromPdf(formData: FormData) {
   } catch {
     redirect("/nutrition/import?error=import");
   }
+  if (count === 0) redirect("/nutrition/import?error=sin-recetas");
   refresh();
   redirect(`/nutrition/recipes?imported=${count}`);
 }

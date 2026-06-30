@@ -68,7 +68,7 @@ export async function buildShoppingLines(weekId: string) {
         const parsed = parseQty(ing.quantity);
         const existing = map.get(key);
         if (existing) {
-          existing.qty = existing.qty !== null && parsed !== null ? existing.qty + parsed : existing.qty;
+          if (parsed !== null) existing.qty = (existing.qty ?? 0) + parsed;
           if (ing.quantity) existing.rawQtys.push(ing.quantity);
         } else {
           map.set(key, {
@@ -96,16 +96,20 @@ export async function buildShoppingLines(weekId: string) {
 // Manual items are left untouched; previous "receta" items are replaced.
 export async function regenerateMarketList(weekId: string): Promise<number> {
   const lines = await buildShoppingLines(weekId);
-  await db.shoppingItem.deleteMany({ where: { weekId, source: "receta" } });
-  if (lines.length === 0) return 0;
-  await db.shoppingItem.createMany({
-    data: lines.map((l) => ({
-      weekId,
-      name: l.name,
-      qty: l.qty,
-      aisle: l.aisle ?? "del plan de comida",
-      source: "receta",
-    })),
+  // Atomic so a failed createMany cannot leave the week without its recipe items.
+  await db.$transaction(async (tx) => {
+    await tx.shoppingItem.deleteMany({ where: { weekId, source: "receta" } });
+    if (lines.length > 0) {
+      await tx.shoppingItem.createMany({
+        data: lines.map((l) => ({
+          weekId,
+          name: l.name,
+          qty: l.qty,
+          aisle: l.aisle ?? "del plan de comida",
+          source: "receta",
+        })),
+      });
+    }
   });
   return lines.length;
 }

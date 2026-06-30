@@ -9,6 +9,7 @@ const ERRORS: Record<string, string> = {
   "falta-pdf": "Elegí un archivo PDF.",
   "no-pdf": "El archivo debe ser un PDF.",
   "pdf-grande": "El PDF es demasiado grande (máx. 32 MB).",
+  "sin-recetas": "No encontramos recetas en ese origen. Probá con otra página o PDF.",
   import: "No se pudo importar. Revisá el origen e intentá de nuevo.",
 };
 
