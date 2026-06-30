@@ -38,7 +38,9 @@ model User {
   habits     Habit[]
   habitLogs  HabitLog[]
   weightLogs WeightLog[]
-  weeks      Week[]     @relation("OwnedWeeks") // plannings this person owns (private)
+  weeks      Week[]          @relation("OwnedWeeks") // plannings this person owns (private)
+  goals      Goal[]
+  reviews    QuarterReview[]
 }
 
 // --- The 12 pillars of life. ---
@@ -51,25 +53,59 @@ model Pillar {
   goals Goal[]
 }
 
-// --- Quarterly goals assigned to a pillar. ---
+// --- Goals assigned to a pillar. Annual (quarter = null) or quarterly (1..4).
+// `visibility` separates each person's private goals from the shared family ones.
 model Goal {
-  id        String     @id @default(cuid())
-  year      Int
-  quarter   Int // 1..4
-  pillarId  String
-  pillar    Pillar     @relation(fields: [pillarId], references: [id])
-  text      String
-  status    GoalStatus @default(open)
-  createdAt DateTime   @default(now())
-  closedAt  DateTime?
+  id         String         @id @default(cuid())
+  year       Int
+  quarter    Int? // null = annual goal; 1..4 = quarterly goal
+  pillarId   String
+  pillar     Pillar         @relation(fields: [pillarId], references: [id])
+  text       String
+  status     GoalStatus     @default(open)
+  visibility GoalVisibility @default(family)
+  // Creator of the goal. Required for private goals (only the owner sees them);
+  // for family goals it just records who added it.
+  ownerId    String?
+  owner      User?          @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  createdAt  DateTime       @default(now())
+  closedAt   DateTime?
 
   @@index([year, quarter])
+  @@index([visibility, ownerId, year])
 }
 
 enum GoalStatus {
   open
   done
   carried // carried over to the next quarter
+}
+
+enum GoalVisibility {
+  private // personal — only the owner sees it
+  family // shared between the couple
+}
+
+// --- Closing / retrospective analysis for a period (a quarter, or the whole
+// year when quarter = null). Scoped like goals: one per period + visibility +
+// owner. Lets Guille and China do a quarterly cierre instead of only a yearly one.
+model QuarterReview {
+  id         String         @id @default(cuid())
+  year       Int
+  quarter    Int? // null = annual review; 1..4 = quarterly review
+  visibility GoalVisibility @default(family)
+  ownerId    String? // set for private reviews; null for family reviews
+  owner      User?          @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+
+  wins      String? // what went well / achievements
+  challenges String? // what was hardest / what derailed us
+  learnings String? // lessons learned
+  nextFocus String? // focus for the next period
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([visibility, ownerId, year, quarter])
 }
 
 // --- Individual habits (per person). ---
