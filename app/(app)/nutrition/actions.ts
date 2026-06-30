@@ -242,3 +242,29 @@ export async function importRecipeFromPdf(formData: FormData) {
   refresh();
   redirect(`/nutrition/recipes?imported=${count}`);
 }
+
+// Import a PDF by URL. Claude reads it directly from the URL, so the file never
+// passes through the server — this sidesteps the Server Action / serverless body
+// size limits for large recipe books. The URL must be publicly reachable.
+export async function importPdfFromUrl(formData: FormData) {
+  await requireUser();
+  const url = String(formData.get("pdfUrl") ?? "").trim();
+  if (!url) redirect("/nutrition/import?error=falta-url");
+  let host = "pdf";
+  try {
+    host = new URL(url).host;
+  } catch {
+    redirect("/nutrition/import?error=url-invalida");
+  }
+  let count = 0;
+  try {
+    const recipes = await extractRecipesFromPdf({ url });
+    const saved = await saveExtractedRecipes(recipes, { source: `pdf: ${host}`, sourceUrl: url });
+    count = saved.length;
+  } catch {
+    redirect("/nutrition/import?error=import");
+  }
+  if (count === 0) redirect("/nutrition/import?error=sin-recetas");
+  refresh();
+  redirect(`/nutrition/recipes?imported=${count}`);
+}
