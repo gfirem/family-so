@@ -21,7 +21,7 @@ Read this before working in this repo.
 - Anthropic SDK (`claude-opus-4-8`) for the in-app assistant; MCP server at `/api/mcp`.
 
 ## Deploy
-- Hosted on Vercel with the Neon database. Vercel runs the **`vercel-build`** script (`prisma generate && prisma db push --skip-generate && next build`), so the schema is applied to Neon on every deploy. `db push` (without `--accept-data-loss`) refuses destructive changes and fails the build, so only additive/safe schema changes deploy automatically — destructive ones must be handled deliberately.
+- Hosted on Vercel with the Neon database. Vercel runs the **`vercel-build`** script, which runs `prisma db push --skip-generate` **only when `VERCEL_ENV=production`** — so the schema is applied to Neon on production deploys, while preview deploys just `prisma generate && next build` and never mutate the production schema. `db push` (without `--accept-data-loss`) refuses destructive changes and fails the deploy, so only additive/safe schema changes apply automatically — destructive ones must be handled deliberately.
 - The plain `build` script (no `db push`) is what GitHub Actions CI and local verification use, so they never touch the database.
 
 ## Verify before pushing
