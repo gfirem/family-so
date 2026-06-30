@@ -11,7 +11,7 @@ Read this before working in this repo.
 ## Local environment ⚠️
 - The local `.env` `DATABASE_URL` **points to the Neon PRODUCTION database**. Treat local as production for data.
 - **Do NOT run destructive DB commands locally** (`db:push`, `db:seed`, `db:migrate`) unless explicitly asked — they hit production.
-- To verify code changes safely, run `npm run build`. It runs `prisma generate` + type-check + compile and **does not touch the database**.
+- To verify code changes safely, run `npm run build`. It runs `prisma generate` + type-check + compile and **does not touch the database**. (The DB-touching `db push` lives in `vercel-build`, which only Vercel runs — see Deploy.)
 - All required env vars are already set in **local** and in **Vercel**: `DATABASE_URL`, `AUTH_SECRET`, `ANTHROPIC_API_KEY`, `MCP_TOKEN`. No need to ask for them again.
 
 ## Stack
@@ -21,7 +21,8 @@ Read this before working in this repo.
 - Anthropic SDK (`claude-opus-4-8`) for the in-app assistant; MCP server at `/api/mcp`.
 
 ## Deploy
-- Hosted on Vercel with the Neon database. The Vercel build runs `prisma generate` (no engine download — Prisma 7 is Rust-free).
+- Hosted on Vercel with the Neon database. Vercel runs the **`vercel-build`** script (`prisma generate && prisma db push --skip-generate && next build`), so the schema is applied to Neon on every deploy. `db push` (without `--accept-data-loss`) refuses destructive changes and fails the build, so only additive/safe schema changes deploy automatically — destructive ones must be handled deliberately.
+- The plain `build` script (no `db push`) is what GitHub Actions CI and local verification use, so they never touch the database.
 
 ## Verify before pushing
 - `npm run build` must pass (type-check + compile).
