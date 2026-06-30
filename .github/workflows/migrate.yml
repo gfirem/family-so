@@ -1,0 +1,34 @@
+name: DB Migrate (prod)
+
+# Applies pending Prisma migrations to the production (Neon) database.
+# Runs only when migration files change, and never concurrently, so it cannot
+# race the Postgres advisory lock that Prisma Migrate uses. The Vercel build is
+# DB-free; this job is the single place that mutates the production schema.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "prisma/migrations/**"
+
+concurrency:
+  group: prisma-migrate-prod
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    env:
+      # prisma.config.ts reads DIRECT_DATABASE_URL into datasource.url. It MUST be
+      # the Neon DIRECT (non-pooler) endpoint — migrations break over the pooler.
+      DIRECT_DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Apply pending migrations
+        run: npx prisma migrate deploy
