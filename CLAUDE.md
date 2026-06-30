@@ -21,13 +21,14 @@ Read this before working in this repo.
 - Anthropic SDK (`claude-opus-4-8`) for the in-app assistant; MCP server at `/api/mcp`.
 
 ## Deploy
-- Hosted on Vercel with the Neon database. The Vercel build (`vercel-build` = `build`) is **DB-free** (`prisma generate && next build`) — Vercel never mutates the schema.
-- Schema changes are applied by the **`DB Migrate (prod)`** GitHub Actions workflow (`.github/workflows/migrate.yml`): on push to `main` that touches `prisma/migrations/**`, it runs `prisma migrate deploy` against Neon using the `DIRECT_DATABASE_URL` secret. It is serialized (`concurrency`) so migrations never race the Prisma advisory lock.
+- Hosted on Vercel with the Neon database. **Vercel applies migrations during the build:** `vercel-build` runs `prisma migrate deploy` **only when `VERCEL_ENV=production`** (preview deploys just `prisma generate && next build` and never mutate the prod schema). So a production deploy applies any pending migrations, then builds.
+- For `migrate deploy` to work, Vercel's **production** env must have `DIRECT_DATABASE_URL` set to the Neon **non-pooler** endpoint (the schema engine can't run over the pooler). The CLI reads it via `prisma.config.ts`; the app runtime keeps using the pooled `DATABASE_URL`.
+- The plain `build` script stays DB-free for GitHub Actions CI and local verification.
 
 ## Database migrations (Prisma Migrate)
 - Migrations live in `prisma/migrations/` (committed, including `migration_lock.toml`). `0_init` is the baseline of the pre-migrations schema; production was marked applied with `prisma migrate resolve --applied 0_init`, so it is never re-run.
-- **Authoring a change:** point the CLI at a **Neon dev branch** (`DIRECT_DATABASE_URL` = the branch's non-pooler URL), edit `schema.prisma`, then `npm run migrate:dev -- --name <change>` (v7 doesn't auto-generate; the script appends `prisma generate`). Review the generated SQL, commit `prisma/migrations/**` + `schema.prisma`. On merge to `main`, CI applies it to prod.
-- The app runtime keeps using the pooled `DATABASE_URL` via the pg adapter in `lib/db.ts`; only the Prisma CLI uses the direct `DIRECT_DATABASE_URL`.
+- **Authoring a change:** point the CLI at a **Neon dev branch** (`DIRECT_DATABASE_URL` = the branch's non-pooler URL), edit `schema.prisma`, then `npm run migrate:dev -- --name <change>` (v7 doesn't auto-generate; the script appends `prisma generate`). Review the generated SQL, commit `prisma/migrations/**` + `schema.prisma`. On the next production deploy, Vercel runs `migrate deploy` and applies it.
+- A failed migration fails the production build (the deploy won't go live). Keep migrations additive/expand-contract so a deploy can't half-apply schema vs code.
 
 ## Verify before pushing
 - `npm run build` must pass (type-check + compile).
