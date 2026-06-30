@@ -1,7 +1,7 @@
 import { PageHeader, Card, SectionTitle } from "@/components/ui";
 import { SubmitButton } from "@/components/actions-ui";
 import { NutritionTabs } from "../Tabs";
-import { importRecipeFromUrl, importRecipeFromPdf } from "../actions";
+import { importRecipeFromUrl, importRecipeFromPdf, importPdfFromUrl } from "../actions";
 
 const ERRORS: Record<string, string> = {
   "falta-url": "Pegá una URL para importar.",
@@ -54,7 +54,7 @@ export default async function ImportPage({
       </Card>
 
       <Card className="mb-5">
-        <SectionTitle>Desde un PDF</SectionTitle>
+        <SectionTitle>Desde un PDF (archivo)</SectionTitle>
         <form action={importRecipeFromPdf} className="space-y-2">
           <input
             name="pdf"
@@ -66,7 +66,26 @@ export default async function ImportPage({
           <SubmitButton>Importar PDF</SubmitButton>
         </form>
         <p className="mt-2 text-xs text-[var(--color-muted)]">
-          Procesamos TODO el recetario y creamos cada receta por separado. Máx. 32 MB.
+          Procesamos TODO el recetario y creamos cada receta por separado. En producción la subida
+          directa está limitada a ~4.5 MB; para recetarios grandes usá «PDF por URL» abajo.
+        </p>
+      </Card>
+
+      <Card className="mb-5">
+        <SectionTitle>Desde un PDF (por URL)</SectionTitle>
+        <form action={importPdfFromUrl} className="flex flex-wrap gap-2">
+          <input
+            name="pdfUrl"
+            type="url"
+            placeholder="https://… (link público y directo al PDF)"
+            className="input flex-1"
+            required
+          />
+          <SubmitButton>Importar PDF por URL</SubmitButton>
+        </form>
+        <p className="mt-2 text-xs text-[var(--color-muted)]">
+          Sin límite de tamaño: la IA lee el PDF directo desde la URL. El link debe ser
+          público y apuntar directo al archivo (no una página de previsualización).
         </p>
       </Card>
 

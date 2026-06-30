@@ -7,6 +7,13 @@ const nextConfig: NextConfig = {
     // Linting runs separately; it does not block the build on Vercel.
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    // Allow large uploads to Server Actions — the PDF recipe-book import
+    // (/nutrition/import) sends the whole file; the action itself caps it at 32 MB.
+    serverActions: {
+      bodySizeLimit: "32mb",
+    },
+  },
 };
 
 export default nextConfig;
