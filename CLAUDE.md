@@ -13,6 +13,7 @@ Read this before working in this repo.
 - **Do NOT run destructive DB commands locally** (`db:push`, `db:seed`, `migrate:dev`, `migrate:deploy`) unless explicitly asked — they hit production. In particular **never run `migrate:dev` against the prod connection** (it resets/uses a shadow DB) — author migrations on a Neon dev branch (see Database migrations).
 - To verify code changes safely, run `npm run build`. It runs `prisma generate` + type-check + compile and **does not touch the database**.
 - All required env vars are already set in **local** and in **Vercel**: `DATABASE_URL`, `AUTH_SECRET`, `ANTHROPIC_API_KEY`, `MCP_TOKEN`. Schema migrations also need `DIRECT_DATABASE_URL` (Neon non-pooler endpoint) — set in local `.env` and as a GitHub Actions secret.
+- Image uploads (recipe photos, family photo) use **Vercel Blob**. Create a Blob store in the Vercel project (Storage → Blob); Vercel then injects `BLOB_READ_WRITE_TOKEN` into the deployment. For local dev, pull it with `vercel env pull` (or set it in `.env`). The browser uploads straight to Blob via `/api/blob/upload`, which only issues tokens to signed-in users for image content types.
 
 ## Stack
 - Next.js (App Router) + TypeScript + Tailwind CSS v4.

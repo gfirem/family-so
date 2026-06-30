@@ -1,5 +1,6 @@
 import { PageHeader, Card, SectionTitle } from "@/components/ui";
 import { ActionButton, SubmitButton } from "@/components/actions-ui";
+import { ImageUpload } from "@/components/ImageUpload";
 import { requireUser } from "@/lib/session";
 import { getFamily } from "@/lib/family";
 import { updateFamily, addMember, updateMember, removeMember } from "./actions";
@@ -21,34 +22,18 @@ export default async function SettingsPage() {
       <Card className="mb-5">
         <SectionTitle>La familia</SectionTitle>
         <form action={updateFamily} className="space-y-3">
-          <div className="flex items-center gap-4">
-            {family.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={family.image}
-                alt=""
-                className="h-16 w-16 rounded-2xl object-cover"
-              />
-            ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--color-brand-50)] text-2xl">
-                👨‍👩‍👧
-              </div>
-            )}
-            <div className="min-w-0 flex-1 space-y-2">
-              <input
-                name="name"
-                defaultValue={family.name}
-                placeholder="Nombre de la familia"
-                className="input"
-                required
-              />
-              <input
-                name="image"
-                defaultValue={family.image ?? ""}
-                placeholder="URL de la foto (opcional)"
-                className="input"
-              />
-            </div>
+          <input
+            name="name"
+            defaultValue={family.name}
+            placeholder="Nombre de la familia"
+            className="input"
+            required
+          />
+          <div>
+            <label className="mb-1 block text-xs text-[var(--color-muted)]">
+              Foto de la familia (opcional)
+            </label>
+            <ImageUpload name="image" defaultValue={family.image ?? ""} />
           </div>
           <SubmitButton>Guardar</SubmitButton>
         </form>
