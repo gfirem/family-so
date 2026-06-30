@@ -187,18 +187,47 @@ model Recipe {
   name      String
   source    String   @default("recetario 1-2-12")
   approved  Boolean  @default(false)
-  proteinG  Int? // grams of protein per serving
   tags      String[] // ["sin-lacteos", "licuado", ...]
   prepStyle String   @default("full") // minimalist | batch | full
   isShake   Boolean  @default(false) // the "1": shake
   notes     String?
   createdAt DateTime @default(now())
 
+  // Rich recipe-book data (recetario completo). All optional so existing rows stay valid.
+  category    String? // "Licuados", "Desayuno", "Almuerzo", "Cena", "Snack", "Postre", ...
+  prepMinutes Int? // prep time
+  cookMinutes Int? // cook time
+  servings    Int? // number of servings the macros refer to
+  calories    Int? // kcal per serving
+  proteinG    Int? // grams of protein per serving
+  fatG        Int? // grams of fat per serving
+  carbsG      Int? // grams of carbs per serving
+  directions  String[] // ordered preparation steps
+  photoUrl    String? // image of the finished dish
+  sourceUrl   String? // original URL when imported from the web
+
+  ingredients RecipeIngredient[]
+
   asShake MealPlanDay[] @relation("ShakeRecipe")
   asMeal1 MealPlanDay[] @relation("Meal1Recipe")
   asMeal2 MealPlanDay[] @relation("Meal2Recipe")
 
   @@index([approved])
+  @@index([category])
+}
+
+// --- Structured ingredient of a recipe (the basis of the shopping list). ---
+model RecipeIngredient {
+  id       String  @id @default(cuid())
+  recipeId String
+  recipe   Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  name     String // "pineapple", "vanilla protein powder"
+  quantity String? // "1", "¼", "8" (kept as text to preserve fractions)
+  unit     String? // "cup", "oz", "tbs", "serving"
+  aisle    String? // grocery aisle/category, for grouping the shopping list
+  order    Int     @default(0)
+
+  @@index([recipeId])
 }
 
 // --- Meal plan for a week (shake + 2 meals/day). ---
