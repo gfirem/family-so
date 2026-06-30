@@ -5,10 +5,27 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { logoutAction } from "@/app/actions/auth";
 
-const LINKS = [
+type NavLink = {
+  href: string;
+  label: string;
+  icon: string;
+  children?: { href: string; label: string }[];
+};
+
+const LINKS: NavLink[] = [
   { href: "/", label: "Tablero", icon: "📊" },
   { href: "/planning", label: "Domingo", icon: "🗓️" },
-  { href: "/nutrition", label: "Comida", icon: "🥗" },
+  {
+    href: "/nutrition",
+    label: "Comida",
+    icon: "🥗",
+    children: [
+      { href: "/nutrition/recipes", label: "Recetas" },
+      { href: "/nutrition/plan", label: "Plan semanal" },
+      { href: "/nutrition/shopping", label: "Lista de compras" },
+      { href: "/nutrition/import", label: "Importar" },
+    ],
+  },
   { href: "/habits", label: "Hábitos", icon: "✅" },
   { href: "/goals", label: "Metas", icon: "🎯" },
   { href: "/day", label: "El día", icon: "🌅" },
@@ -18,14 +35,52 @@ const LINKS = [
 
 function isActive(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
-  return pathname.startsWith(href);
+  return pathname === href || pathname.startsWith(href + "/");
 }
 
 function currentLabel(pathname: string) {
-  const match = [...LINKS]
+  const flat = LINKS.flatMap((l) => [l, ...(l.children ?? [])]);
+  const match = [...flat]
     .sort((a, b) => b.href.length - a.href.length)
     .find((l) => isActive(pathname, l.href));
   return match?.label ?? "family-so";
+}
+
+// Renders a top-level link and, when its section is active, its sub-links.
+function NavSection({ link, pathname }: { link: NavLink; pathname: string }) {
+  const active = isActive(pathname, link.href);
+  return (
+    <div>
+      <Link
+        href={link.href}
+        className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
+          active
+            ? "bg-[var(--color-brand-50)] text-[var(--color-brand-700)]"
+            : "text-[var(--color-muted)] hover:bg-[var(--color-bg)]"
+        }`}
+      >
+        <span aria-hidden>{link.icon}</span>
+        {link.label}
+      </Link>
+      {link.children && active && (
+        <div className="mt-1 ml-7 space-y-0.5 border-l border-[var(--color-line)] pl-3">
+          {link.children.map((c) => (
+            <Link
+              key={c.href}
+              href={c.href}
+              className={`block rounded-lg px-2 py-1.5 text-sm transition-colors ${
+                isActive(pathname, c.href)
+                  ? "font-medium text-[var(--color-brand-700)]"
+                  : "text-[var(--color-muted)] hover:bg-[var(--color-bg)]"
+              }`}
+            >
+              {c.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function Sidebar({ userName }: { userName: string }) {
@@ -39,18 +94,7 @@ export function Sidebar({ userName }: { userName: string }) {
       </div>
       <nav className="flex-1 space-y-1">
         {LINKS.map((l) => (
-          <Link
-            key={l.href}
-            href={l.href}
-            className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
-              isActive(pathname, l.href)
-                ? "bg-[var(--color-brand-50)] text-[var(--color-brand-700)]"
-                : "text-[var(--color-muted)] hover:bg-[var(--color-bg)]"
-            }`}
-          >
-            <span aria-hidden>{l.icon}</span>
-            {l.label}
-          </Link>
+          <NavSection key={l.href} link={l} pathname={pathname} />
         ))}
       </nav>
       <div className="mt-4 border-t border-[var(--color-line)] pt-4">
@@ -134,18 +178,7 @@ export function MobileTopBar({ userName }: { userName: string }) {
             </div>
             <nav className="flex-1 space-y-1 overflow-y-auto">
               {LINKS.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-                    isActive(pathname, l.href)
-                      ? "bg-[var(--color-brand-50)] text-[var(--color-brand-700)]"
-                      : "text-[var(--color-muted)] hover:bg-[var(--color-bg)]"
-                  }`}
-                >
-                  <span aria-hidden>{l.icon}</span>
-                  {l.label}
-                </Link>
+                <NavSection key={l.href} link={l} pathname={pathname} />
               ))}
             </nav>
             <div className="mt-4 border-t border-[var(--color-line)] pt-4">
