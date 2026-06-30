@@ -13,6 +13,23 @@ const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
 };
 
+// `pg` warns that sslmode=require|prefer|verify-ca are currently aliased to
+// verify-full and will change meaning in pg v9. We rely on the current behavior
+// (full verification — Neon presents a valid cert), so make it explicit. This is
+// behavior-preserving and silences the deprecation warning.
+function explicitSslMode(connectionString: string): string {
+  try {
+    const url = new URL(connectionString);
+    const mode = url.searchParams.get("sslmode");
+    if (mode && ["require", "prefer", "verify-ca"].includes(mode)) {
+      url.searchParams.set("sslmode", "verify-full");
+    }
+    return url.toString();
+  } catch {
+    return connectionString; // not a URL we can parse — leave it untouched
+  }
+}
+
 function createClient(): PrismaClient {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
@@ -20,7 +37,7 @@ function createClient(): PrismaClient {
       "DATABASE_URL is not set in this environment. On Vercel, add the Neon connection string to the Production environment and redeploy.",
     );
   }
-  const adapter = new PrismaPg({ connectionString });
+  const adapter = new PrismaPg({ connectionString: explicitSslMode(connectionString) });
   return new PrismaClient({ adapter });
 }
 
