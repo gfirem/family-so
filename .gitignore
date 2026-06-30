@@ -21,3 +21,6 @@ tsconfig.tsbuildinfo
 
 # Prisma
 /prisma/*.db
+
+# Local Prisma engine binary (downloaded manually in sandboxes; never commit)
+/.prisma-engines

@@ -35,12 +35,13 @@ model User {
   familyId String?
   family   Family? @relation(fields: [familyId], references: [id], onDelete: SetNull)
 
-  habits     Habit[]
-  habitLogs  HabitLog[]
-  weightLogs WeightLog[]
-  weeks      Week[]          @relation("OwnedWeeks") // plannings this person owns (private)
-  goals      Goal[]
-  reviews    QuarterReview[]
+  habits         Habit[]
+  habitLogs      HabitLog[]
+  weightLogs     WeightLog[]
+  habitSchedules HabitSchedule[]
+  weeks          Week[]          @relation("OwnedWeeks") // plannings this person owns (private)
+  goals          Goal[]
+  reviews        QuarterReview[]
 }
 
 // --- The 12 pillars of life. ---
@@ -109,6 +110,14 @@ model QuarterReview {
 }
 
 // --- Individual habits (per person). ---
+// Field design follows the habit-formation science we back the section with:
+//  - identityLink  -> identity-based habits (Atomic Habits): each check is a "vote".
+//  - isKeystone    -> keystone habits that pull other behaviours along.
+//  - tinyVersion   -> Fogg's "make it tiny" 2-minute version, so it never feels too big.
+//  - cue           -> implementation intention (Gollwitzer): "Después de X, haré Y".
+//  - scheduleId    -> time-of-day group (Mañana/Mediodía/Noche) = the contextual cue.
+//  - reminderAt    -> the "prompt" of Fogg's B=MAP, optionally backed by Google Calendar.
+//  - daysOfWeek    -> flexible frequency (like Streaks): empty = every day.
 model Habit {
   id           String   @id @default(cuid())
   ownerId      String
@@ -120,9 +129,37 @@ model Habit {
   active       Boolean  @default(true)
   createdAt    DateTime @default(now())
 
+  // --- Science-backed scheduling & cues (all optional, additive). ---
+  tinyVersion     String? // Fogg: the 2-minute version, e.g. "ponte las zapatillas"
+  cue             String? // implementation intention: "Después de [ancla], haré [hábito]"
+  reminderAt      String? // local time "HH:mm" for the daily reminder/alarm
+  daysOfWeek      Int[]   @default([]) // empty = every day; else 0=Mon .. 6=Sun
+  calendarEventId String? // id of the backing Google Calendar recurring event
+
+  scheduleId String?
+  schedule   HabitSchedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+
   logs HabitLog[]
 
   @@index([ownerId, active])
+  @@index([scheduleId])
+}
+
+// --- Time-of-day groups (Mañana / Mediodía / Noche), per person. ---
+// Organising habits into moments is the contextual cue behind habit stacking
+// and implementation intentions — the strongest lever in the literature.
+model HabitSchedule {
+  id      String  @id @default(cuid())
+  ownerId String
+  owner   User    @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name    String // "Mañana", "Mediodía", "Noche"
+  emoji   String  @default("🕒")
+  atTime  String? // representative time "08:00", used to sort and as default reminder
+  order   Int     @default(0)
+
+  habits Habit[]
+
+  @@index([ownerId, order])
 }
 
 // --- Daily log for each habit. Streak and total are derived from here. ---

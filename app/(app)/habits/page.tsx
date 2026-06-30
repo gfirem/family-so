@@ -1,13 +1,21 @@
 import Link from "next/link";
-import { PageHeader, Card, SectionTitle } from "@/components/ui";
-import { ActionButton, SubmitButton } from "@/components/actions-ui";
-import { HabitCheck } from "./HabitCheck";
+import { Card, SectionTitle, EmptyState } from "@/components/ui";
+import { SubmitButton } from "@/components/actions-ui";
+import { HabitToggle } from "./HabitToggle";
 import { db } from "@/lib/db";
 import { getPartners } from "@/lib/session";
-import { startOfWeek, addDays, isoDate, DAY_SHORT } from "@/lib/dates";
-import { addHabit, deleteHabit, addWeight } from "./actions";
+import { isoDate } from "@/lib/dates";
+import {
+  getHabits,
+  getSchedules,
+  getDoneMap,
+  isScheduledOn,
+  currentStreak,
+  isNonNegotiable,
+} from "@/lib/habits";
+import { addWeight } from "./actions";
 
-export default async function HabitosPage({
+export default async function TodayPage({
   searchParams,
 }: {
   searchParams: Promise<{ p?: string }>;
@@ -16,27 +24,33 @@ export default async function HabitosPage({
   const users = await getPartners();
   const selected = users.find((u) => u.id === p) ?? users[0];
 
-  const weekOf = startOfWeek();
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekOf, i));
-  const todayIso = isoDate(new Date());
-  const yesterdayIso = isoDate(addDays(new Date(), -1));
+  const today = new Date();
+  const todayIso = isoDate(today);
 
-  const habits = await db.habit.findMany({
-    where: { ownerId: selected.id, active: true },
-    orderBy: [{ isKeystone: "desc" }, { order: "asc" }],
-  });
+  const [habits, schedules, doneMap] = await Promise.all([
+    getHabits(selected.id),
+    getSchedules(selected.id),
+    getDoneMap(selected.id, 90),
+  ]);
 
-  // Logs from the last 35 days to derive streak and "twice in a row".
-  const since = addDays(new Date(), -35);
-  const logs = await db.habitLog.findMany({
-    where: { ownerId: selected.id, done: true, date: { gte: since } },
-  });
-  const doneByHabit = new Map<string, Set<string>>();
-  for (const l of logs) {
-    const key = l.habitId;
-    if (!doneByHabit.has(key)) doneByHabit.set(key, new Set());
-    doneByHabit.get(key)!.add(isoDate(l.date));
+  // Only the habits scheduled for today (empty daysOfWeek = every day).
+  const todays = habits.filter((h) => isScheduledOn(h.daysOfWeek, today));
+  const doneCount = todays.filter((h) => (doneMap.get(h.id) ?? new Set()).has(todayIso)).length;
+
+  // Group by schedule, preserving schedule order; ungrouped habits go last.
+  const groups: { key: string; emoji: string; name: string; atTime?: string | null; items: typeof todays }[] =
+    schedules.map((s) => ({
+      key: s.id,
+      emoji: s.emoji,
+      name: s.name,
+      atTime: s.atTime,
+      items: todays.filter((h) => h.scheduleId === s.id),
+    }));
+  const ungrouped = todays.filter((h) => !h.scheduleId || !schedules.some((s) => s.id === h.scheduleId));
+  if (ungrouped.length > 0) {
+    groups.push({ key: "none", emoji: "📌", name: "Sin horario", atTime: null, items: ungrouped });
   }
+  const visibleGroups = groups.filter((g) => g.items.length > 0);
 
   const weights = await db.weightLog.findMany({
     where: { ownerId: selected.id },
@@ -44,149 +58,100 @@ export default async function HabitosPage({
     take: 6,
   });
 
-  function streak(habitId: string): number {
-    const set = doneByHabit.get(habitId) ?? new Set();
-    let n = 0;
-    // start at today if done, otherwise at yesterday (a single day does not break the chain when counting)
-    let cursor = set.has(todayIso) ? new Date() : addDays(new Date(), -1);
-    while (set.has(isoDate(cursor))) {
-      n++;
-      cursor = addDays(cursor, -1);
-    }
-    return n;
-  }
+  let cheerCounter = 0;
 
   return (
     <>
-      <PageHeader
-        emoji="✅"
-        title="Hábitos"
-        subtitle="Nunca falles dos veces seguidas. Un día fallido no rompe nada; dos seguidos arrancan un hábito nuevo."
-      />
-
-      {/* Person tabs */}
-      <div className="mb-5 flex gap-2">
-        {users.map((u) => (
-          <Link
-            key={u.id}
-            href={`/habits?p=${u.id}`}
-            className={`rounded-xl px-4 py-2 text-sm font-semibold ${
-              u.id === selected.id
-                ? "bg-[var(--color-brand-600)] text-white"
-                : "border border-[var(--color-line)] bg-white text-[var(--color-muted)]"
-            }`}
-          >
-            {u.name}
-          </Link>
-        ))}
-      </div>
-
-      {/* Identity anchor */}
+      {/* Identity anchor — identity-based habits: each check is a vote. */}
       <Card className="mb-5 bg-[var(--color-brand-50)]">
         <p className="text-sm font-medium text-[var(--color-brand-700)]">
           Somos personas que duermen bien, entrenan y comen para estar fuertes — listos para ser
-          papás. Cada marca de abajo es un voto por esa persona.
+          papás. Cada marca de hoy es un voto por esa persona.
         </p>
-        <Link href="/goals" className="mt-2 inline-block text-sm font-semibold text-[var(--color-brand-700)]">
-          Ver nuestras metas →
-        </Link>
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          <span className="text-sm font-semibold text-[var(--color-brand-700)]">
+            Hoy: {doneCount}/{todays.length} votos
+          </span>
+          <Link href="/goals" className="text-sm font-semibold text-[var(--color-brand-700)]">
+            Ver nuestras metas →
+          </Link>
+        </div>
       </Card>
 
-      {/* Weekly grid */}
-      <Card className="mb-5 overflow-x-auto">
-        <SectionTitle>Semana</SectionTitle>
-        <table className="w-full border-collapse">
-          <thead>
-            <tr>
-              <th className="w-1/2" />
-              {weekDays.map((d, i) => (
-                <th key={i} className="px-1 pb-2 text-xs font-medium text-[var(--color-muted)]">
-                  {DAY_SHORT[i]}
-                </th>
-              ))}
-              <th className="px-1 pb-2 text-xs font-medium text-[var(--color-muted)]">Σ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {habits.map((h) => {
-              const set = doneByHabit.get(h.id) ?? new Set();
-              const total = weekDays.filter((d) => set.has(isoDate(d))).length;
-              const failedYesterday = !set.has(yesterdayIso);
-              const notDoneToday = !set.has(todayIso);
-              const nonNegotiable = failedYesterday && notDoneToday;
-              return (
-                <tr key={h.id} className="border-t border-[var(--color-line)]">
-                  <td className="py-2 pr-2 align-top">
-                    <div className="flex items-center gap-1.5">
-                      <span className={`text-sm ${h.isKeystone ? "font-semibold" : ""}`}>{h.name}</span>
-                      {h.isKeystone && <span className="pill-keystone">clave</span>}
-                    </div>
-                    <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-[var(--color-muted)]">
-                      {streak(h.id) > 0 && <span>🔥 {streak(h.id)} días</span>}
-                      {nonNegotiable && (
-                        <span className="font-semibold text-[var(--color-danger)]">
-                          ¡Hoy es innegociable!
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  {weekDays.map((d, i) => (
-                    <td key={i} className="px-0.5 py-1 text-center">
-                      <div className="flex justify-center">
-                        <HabitCheck
-                          habitId={h.id}
-                          ownerId={selected.id}
-                          date={isoDate(d)}
-                          done={set.has(isoDate(d))}
-                        />
-                      </div>
-                    </td>
-                  ))}
-                  <td className="px-1 text-center text-sm font-semibold">{total}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        {habits.length === 0 && (
-          <p className="py-3 text-sm text-[var(--color-muted)]">
-            {selected.name} todavía no tiene hábitos. Agregá uno abajo.
-          </p>
-        )}
-      </Card>
-
-      {/* Habit list with identity + delete */}
-      <Card className="mb-5">
-        <SectionTitle>Hábitos de {selected.name}</SectionTitle>
-        <ul className="divide-y divide-[var(--color-line)]">
-          {habits.map((h) => (
-            <li key={h.id} className="flex items-start justify-between py-2">
-              <div>
-                <p className="text-sm font-medium">{h.name}</p>
-                {h.identityLink && (
-                  <p className="text-xs text-[var(--color-muted)]">{h.identityLink}</p>
+      {todays.length === 0 ? (
+        <EmptyState
+          text={`${selected.name} no tiene hábitos para hoy. Creá los primeros y organizalos por momento del día.`}
+          cta={{ href: `/habits/manage?p=${selected.id}`, label: "Gestionar hábitos" }}
+        />
+      ) : (
+        <div className="space-y-5">
+          {visibleGroups.map((g) => (
+            <Card key={g.key}>
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="flex items-center gap-2 text-sm font-semibold">
+                  <span aria-hidden>{g.emoji}</span>
+                  {g.name}
+                </h2>
+                {g.atTime && (
+                  <span className="text-xs text-[var(--color-muted)]">{g.atTime}</span>
                 )}
               </div>
-              <ActionButton id={h.id} action={deleteHabit} confirm="¿Archivar este hábito?">
-                Archivar
-              </ActionButton>
-            </li>
+              <ul className="space-y-3">
+                {g.items.map((h) => {
+                  const set = doneMap.get(h.id) ?? new Set<string>();
+                  const isDone = set.has(todayIso);
+                  const streak = currentStreak(set, today);
+                  const nonNegotiable = isNonNegotiable(set, today);
+                  return (
+                    <li key={h.id} className="flex items-start gap-3">
+                      <HabitToggle
+                        habitId={h.id}
+                        ownerId={selected.id}
+                        date={todayIso}
+                        done={isDone}
+                        cheerIndex={cheerCounter++}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span
+                            className={`text-sm ${h.isKeystone ? "font-semibold" : "font-medium"} ${
+                              isDone ? "text-[var(--color-muted)] line-through" : ""
+                            }`}
+                          >
+                            {h.name}
+                          </span>
+                          {h.isKeystone && <span className="pill-keystone">pilar</span>}
+                        </div>
+                        {h.tinyVersion && (
+                          <p className="text-xs text-[var(--color-muted)]">
+                            Mínimo: {h.tinyVersion}
+                          </p>
+                        )}
+                        {h.cue && (
+                          <p className="text-xs italic text-[var(--color-muted)]">“{h.cue}”</p>
+                        )}
+                        <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-[var(--color-muted)]">
+                          {streak > 0 && <span>🔥 {streak} días</span>}
+                          {h.reminderAt && <span>🔔 {h.reminderAt}</span>}
+                          {h.calendarEventId && <span>📅 en Calendar</span>}
+                          {nonNegotiable && (
+                            <span className="font-semibold text-[var(--color-danger)]">
+                              ¡Hoy es innegociable!
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </Card>
           ))}
-        </ul>
-        <form action={addHabit} className="mt-3 space-y-2 border-t border-[var(--color-line)] pt-3">
-          <input type="hidden" name="ownerId" value={selected.id} />
-          <input name="name" placeholder="Nuevo hábito" className="input" required />
-          <input name="identityLink" placeholder="Ancla de identidad (opcional)" className="input" />
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" name="isKeystone" className="h-4 w-4 accent-[var(--color-brand-600)]" />
-            Es un hábito clave (keystone)
-          </label>
-          <SubmitButton className="btn-ghost">Agregar hábito</SubmitButton>
-        </form>
-      </Card>
+        </div>
+      )}
 
-      {/* Weight */}
-      <Card>
+      {/* Compact weight log — kept handy for the daily/weekly check-in. */}
+      <Card className="mt-5">
         <SectionTitle>Peso de {selected.name}</SectionTitle>
         <div className="flex flex-wrap items-end gap-4">
           <div>
