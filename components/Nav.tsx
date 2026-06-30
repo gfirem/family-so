@@ -25,9 +25,8 @@ export function Sidebar({ userName }: { userName: string }) {
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r border-[var(--color-line)] bg-white p-4 md:flex">
       <div className="mb-6 flex items-center gap-2 px-2">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--color-brand-600)] text-lg">
-          🏡
-        </span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/icon-192.png" alt="" width={36} height={36} className="h-9 w-9 rounded-xl" />
         <span className="font-bold">family-so</span>
       </div>
       <nav className="flex-1 space-y-1">
