@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader, Card, SectionTitle } from "@/components/ui";
 import { ActionButton, SubmitButton } from "@/components/actions-ui";
+import { ImageUpload } from "@/components/ImageUpload";
 import { db } from "@/lib/db";
 import {
   updateRecipe,
@@ -71,7 +72,10 @@ export default async function RecipeDetailPage({
             <input name="fatG" type="number" defaultValue={recipe.fatG ?? ""} placeholder="Grasa (g)" className="input w-32" />
             <input name="carbsG" type="number" defaultValue={recipe.carbsG ?? ""} placeholder="Carbs (g)" className="input w-32" />
           </div>
-          <input name="photoUrl" defaultValue={recipe.photoUrl ?? ""} placeholder="URL de la foto" className="input" />
+          <div>
+            <label className="mb-1 block text-xs text-[var(--color-muted)]">Foto de la receta</label>
+            <ImageUpload name="photoUrl" defaultValue={recipe.photoUrl ?? ""} shape="wide" />
+          </div>
           <input
             name="tags"
             defaultValue={recipe.tags.join(", ")}
