@@ -61,4 +61,4 @@ Trabajan los dos en remoto desde casa. Sin un plan propio, la semana se va encer
 - **Planes** (`/plans`) — banco de planes + guion del "no".
 - **Asistente** (`/chat`) — chat con Claude sobre tus datos.
 
-> Pendientes conocidos (v1+): cargar el recetario 1-2-12 completo (PDF) y construir el módulo de entrenamiento (casa + club). Recordatorios reales vía Google Calendar quedan para v2.
+> Pendientes conocidos (v1+): cargar el recetario 1-2-12 completo (PDF). El entrenamiento es externo (Freeletics), trackeado con el hábito "Entrenaste". Recordatorios reales vía Google Calendar quedan para v2.

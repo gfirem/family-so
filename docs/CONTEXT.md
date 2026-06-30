@@ -25,7 +25,7 @@ Encerrados toda la semana trabajando en casa. Sin plan propio, el fin de semana 
 - **Estructura del día:** cadena de la mañana + horarios. Incluye reglas de sueño **10-3-2-1-0** (10h sin cafeína / 3h sin comida ni alcohol / 2h sin trabajo / 1h sin pantallas / 0 veces repetir alarma).
 - **Hábitos (tracker):** estilo "no rompas la cadena", con ancla de identidad y regla de **nunca fallar dos veces seguidas**. Se pueden agregar hábitos nuevos y marcar evolución.
 - **Alimentación — sistema 1-2-12:** 1 licuado de proteína (primero) + 2 comidas reales (≥30 g proteína c/u) + ventana 8 AM–6 PM. Plan **semanal** llenado desde un **banco de recetas** que la pareja va aprobando. Genera la lista del mercado.
-- **Entrenamiento: AÚN NO EXISTE.** Se perdió al dejar de entrenar con Marcela. Construir desde cero: casa ahora, club desde fin de julio.
+- **Entrenamiento: externo, en Freeletics.** No se construye módulo de rutinas en family-so; la app solo registra que se entrenó con el hábito clave "Entrenaste".
 - **Planes y conexión:** miércoles afuera (trabajo remoto desde parque/río), salidas de fin de semana baratas (parques, ríos). Banco de planes para que el finde nunca esté en blanco.
 
 ## 6. Capa transversal — Hábitos Atómicos
@@ -55,5 +55,5 @@ Una **app de sistema operativo familiar**: un solo lugar donde los dos acceden, 
 
 ## 11. Estado / próximos pasos
 - Pendiente: leer el PDF del recetario y cargar el banco de recetas.
-- Pendiente: construir el módulo de entrenamiento (casa + club).
+- Entrenamiento: resuelto fuera de la app (Freeletics); family-so solo lo trackea con el hábito "Entrenaste".
 - v1 propuesta: planning del domingo + comidas/banco de recetas + tracker de hábitos + metas trimestrales + estructura del día. Ver ROADMAP.md.
