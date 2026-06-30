@@ -87,13 +87,13 @@ function NavSection({ link, pathname }: { link: NavLink; pathname: string }) {
 export function Sidebar({ userName }: { userName: string }) {
   const pathname = usePathname();
   return (
-    <aside className="hidden w-60 shrink-0 flex-col border-r border-[var(--color-line)] bg-white p-4 md:flex">
+    <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-[var(--color-line)] bg-white p-4 md:flex">
       <div className="mb-6 flex items-center gap-2 px-2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/icon-192.png" alt="" width={36} height={36} className="h-9 w-9 rounded-xl" />
         <span className="font-bold">family-so</span>
       </div>
-      <nav className="flex-1 space-y-1">
+      <nav className="flex-1 space-y-1 overflow-y-auto">
         {LINKS.map((l) => (
           <NavSection key={l.href} link={l} pathname={pathname} />
         ))}
