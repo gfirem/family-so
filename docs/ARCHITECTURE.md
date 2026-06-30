@@ -16,7 +16,7 @@
         │            │             │            │            │
         ▼            ▼             ▼            ▼            ▼
    Estructura   Alimentación   Hábitos     Planes y     Entrenamiento
-   del día      (1-2-12 +      (tracker)   conexión     (POR CONSTRUIR)
+   del día      (1-2-12 +      (tracker)   conexión     (Freeletics)
    (+ sueño     banco de                   (salidas /
    10-3-2-1-0)  recetas)                   invitaciones)
 
@@ -49,4 +49,4 @@
 
 ## Notas
 - La capa de Hábitos Atómicos no es un módulo: es transversal (cómo se diseña cada feature: hacer lo bueno obvio/fácil, lo malo invisible/difícil).
-- El módulo de **entrenamiento** está vacío a propósito — ver BACKLOG.
+- El **entrenamiento** es externo (Freeletics): no hay módulo de rutinas; solo se trackea con el hábito "Entrenaste". Ver BACKLOG.
