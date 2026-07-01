@@ -2,6 +2,7 @@
 // Each one reads/writes family-so data. The write tools are scoped and safe
 // (they don't delete or modify sensitive health data).
 
+import { put } from "@vercel/blob";
 import { db } from "@/lib/db";
 import { getCurrentWeek, weekHabitStats } from "@/lib/week";
 import { startOfWeek, addDays, isoDate, quarterOf, DAY_NAMES } from "@/lib/dates";
@@ -232,6 +233,11 @@ export const assistantTools: ToolDef[] = [
         },
         directions: { type: "array", items: { type: "string" } },
         notes: { type: "string" },
+        photoUrl: {
+          type: "string",
+          description:
+            "URL of the finished-dish photo. Use upload_recipe_photo to store an image in Blob first.",
+        },
         approved: { type: "boolean" },
       },
       required: ["name"],
@@ -296,7 +302,96 @@ export const assistantTools: ToolDef[] = [
       return JSON.stringify({ ok: true, items: count });
     },
   },
+  {
+    name: "set_recipe_photo",
+    description:
+      "Sets the photo of an existing recipe to a URL you already have (e.g. an already-uploaded Blob URL or an external image URL).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        recipeId: { type: "string", description: "The recipe id" },
+        photoUrl: { type: "string", description: "The image URL to store on the recipe" },
+      },
+      required: ["recipeId", "photoUrl"],
+      additionalProperties: false,
+    },
+    handler: async (args) => {
+      const recipeId = String(args.recipeId);
+      const photoUrl = String(args.photoUrl).trim();
+      const recipe = await db.recipe.update({
+        where: { id: recipeId },
+        data: { photoUrl: photoUrl || null },
+        select: { id: true, name: true, photoUrl: true },
+      });
+      return JSON.stringify({ ok: true, recipe });
+    },
+  },
+  {
+    name: "upload_recipe_photo",
+    description:
+      "Uploads an image into the private Blob store and attaches it to a recipe. Provide EITHER imageUrl (fetched server-side) OR imageBase64. Returns the stored blob URL.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        recipeId: { type: "string", description: "The recipe id to attach the photo to" },
+        imageUrl: { type: "string", description: "Public image URL to fetch and store" },
+        imageBase64: {
+          type: "string",
+          description: "Base64-encoded image bytes (alternative to imageUrl)",
+        },
+        contentType: {
+          type: "string",
+          description: "Image MIME type, e.g. image/jpeg. Inferred from imageUrl when omitted.",
+        },
+      },
+      required: ["recipeId"],
+      additionalProperties: false,
+    },
+    handler: async (args) => {
+      const recipeId = String(args.recipeId);
+      const imageUrl = args.imageUrl ? String(args.imageUrl) : undefined;
+      const imageBase64 = args.imageBase64 ? String(args.imageBase64) : undefined;
+      if (!imageUrl && !imageBase64) {
+        throw new Error("Se requiere imageUrl o imageBase64.");
+      }
+
+      let bytes: Buffer;
+      let contentType = args.contentType ? String(args.contentType) : undefined;
+      if (imageUrl) {
+        const res = await fetch(imageUrl);
+        if (!res.ok) throw new Error(`No se pudo leer la imagen (${res.status}).`);
+        bytes = Buffer.from(await res.arrayBuffer());
+        contentType = contentType ?? res.headers.get("content-type") ?? undefined;
+      } else {
+        bytes = Buffer.from(imageBase64 as string, "base64");
+      }
+      contentType = contentType ?? "image/jpeg";
+
+      const ext = EXT_BY_TYPE[contentType] ?? "jpg";
+      const blob = await put(`recipes/${recipeId}.${ext}`, bytes, {
+        access: "private",
+        addRandomSuffix: true,
+        contentType,
+      });
+      const recipe = await db.recipe.update({
+        where: { id: recipeId },
+        data: { photoUrl: blob.url },
+        select: { id: true, name: true, photoUrl: true },
+      });
+      return JSON.stringify({ ok: true, recipe });
+    },
+  },
 ];
+
+// Common image MIME type -> file extension, for naming uploaded blobs.
+const EXT_BY_TYPE: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/jpg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+  "image/avif": "avif",
+};
 
 export const toolsByName = new Map(assistantTools.map((t) => [t.name, t]));
 

@@ -4,6 +4,7 @@ import { PageHeader, Card, SectionTitle } from "@/components/ui";
 import { ActionButton, SubmitButton } from "@/components/actions-ui";
 import { ImageUpload } from "@/components/ImageUpload";
 import { db } from "@/lib/db";
+import { recipePhotoSrc } from "@/lib/recipe-photo";
 import {
   updateRecipe,
   deleteRecipe,
@@ -65,7 +66,12 @@ export default async function RecipeDetailPage({
           </div>
           <div>
             <label className="mb-1 block text-xs text-[var(--color-muted)]">Foto de la receta</label>
-            <ImageUpload name="photoUrl" defaultValue={recipe.photoUrl ?? ""} shape="wide" />
+            <ImageUpload
+              name="photoUrl"
+              defaultValue={recipe.photoUrl ?? ""}
+              previewSrc={recipePhotoSrc(recipe) ?? ""}
+              shape="wide"
+            />
           </div>
           <input
             name="tags"

@@ -4,20 +4,30 @@ import { useRef, useState } from "react";
 import { upload } from "@vercel/blob/client";
 
 // Uploads an image straight to Vercel Blob from the browser and writes the
-// resulting public URL into a hidden field, so the surrounding Server Action
-// form submits it as a plain string — the file never streams through our server
-// (no multipart, no serverless body limit). `name` is the form field the URL is
-// stored under ("image" for the family photo, "photoUrl" for a recipe).
+// resulting blob URL into a hidden field, so the surrounding Server Action form
+// submits it as a plain string — the file never streams through our server (no
+// multipart, no serverless body limit). The blob store is PRIVATE, so the URL is
+// not directly loadable: display goes through the session-gated proxy route
+// (`previewSrc`, e.g. /api/recipe-photo/[id]) for an already-stored image, and
+// through a local object URL for a freshly picked file. `name` is the form field
+// the URL is stored under ("image" for the family photo, "photoUrl" for a recipe).
 export function ImageUpload({
   name,
   defaultValue = "",
+  previewSrc = "",
   shape = "square",
 }: {
   name: string;
   defaultValue?: string;
+  // Browser-loadable src for an already-stored image (private blobs can't be
+  // loaded from their raw URL). Falls back to defaultValue when omitted.
+  previewSrc?: string;
   shape?: "square" | "wide";
 }) {
+  // `url` is the value actually submitted with the form (the blob URL).
   const [url, setUrl] = useState(defaultValue);
+  // `preview` is what we render — it can differ from `url` for private blobs.
+  const [preview, setPreview] = useState(previewSrc || defaultValue);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -27,9 +37,12 @@ export function ImageUpload({
     if (!file) return;
     setError(null);
     setUploading(true);
+    // Instant local preview while the upload runs (a private blob URL can't be
+    // shown directly once uploaded).
+    setPreview(URL.createObjectURL(file));
     try {
       const blob = await upload(file.name, file, {
-        access: "public",
+        access: "private",
         handleUploadUrl: "/api/blob/upload",
       });
       setUrl(blob.url);
@@ -51,9 +64,9 @@ export function ImageUpload({
       {/* The value actually submitted with the form. */}
       <input type="hidden" name={name} value={url} />
 
-      {url && (
+      {preview && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={url} alt="" className={previewClass} />
+        <img src={preview} alt="" className={previewClass} />
       )}
 
       <div className="flex flex-wrap items-center gap-2">
@@ -69,7 +82,10 @@ export function ImageUpload({
           <button
             type="button"
             className="text-xs text-[var(--color-muted)] hover:text-[var(--color-danger)]"
-            onClick={() => setUrl("")}
+            onClick={() => {
+              setUrl("");
+              setPreview("");
+            }}
           >
             Quitar
           </button>

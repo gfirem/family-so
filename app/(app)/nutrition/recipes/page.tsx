@@ -4,6 +4,7 @@ import { SubmitButton } from "@/components/actions-ui";
 import { ImageUpload } from "@/components/ImageUpload";
 import { NutritionTabs } from "../Tabs";
 import { db } from "@/lib/db";
+import { recipePhotoSrc } from "@/lib/recipe-photo";
 import { addRecipe } from "../actions";
 
 function Macro({ label, value, unit }: { label: string; value: number | null; unit: string }) {
@@ -70,16 +71,18 @@ export default async function RecipesPage({
           <Card key={category} className="mb-5">
             <SectionTitle>{category}</SectionTitle>
             <div className="grid gap-3 sm:grid-cols-2">
-              {list.map((r) => (
+              {list.map((r) => {
+                const photo = recipePhotoSrc(r);
+                return (
                 <Link
                   key={r.id}
                   href={`/nutrition/recipes/${r.id}`}
                   className="flex gap-3 rounded-xl border border-[var(--color-line)] p-3 transition-colors hover:bg-[var(--color-bg)]"
                 >
-                  {r.photoUrl ? (
+                  {photo ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={r.photoUrl}
+                      src={photo}
                       alt=""
                       className="h-16 w-16 shrink-0 rounded-lg object-cover"
                     />
@@ -108,7 +111,8 @@ export default async function RecipesPage({
                     </div>
                   </div>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           </Card>
         ))
