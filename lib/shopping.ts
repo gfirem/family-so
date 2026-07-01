@@ -47,9 +47,10 @@ export async function buildShoppingLines(weekId: string) {
         include: {
           days: {
             include: {
-              shake: { include: { ingredients: true } },
               meal1: { include: { ingredients: true } },
               meal2: { include: { ingredients: true } },
+              meal3: { include: { ingredients: true } },
+              meal4: { include: { ingredients: true } },
             },
           },
         },
@@ -60,7 +61,7 @@ export async function buildShoppingLines(weekId: string) {
 
   const map = new Map<string, Agg>();
   for (const d of week.mealPlan.days) {
-    for (const recipe of [d.shake, d.meal1, d.meal2]) {
+    for (const recipe of [d.meal1, d.meal2, d.meal3, d.meal4]) {
       if (!recipe) continue;
       for (const ing of recipe.ingredients) {
         const unit = ing.unit ? normalize(ing.unit) : null;

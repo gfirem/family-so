@@ -277,9 +277,11 @@ model Recipe {
 
   ingredients RecipeIngredient[]
 
-  asShake MealPlanDay[] @relation("ShakeRecipe")
+  // Any recipe (licuado or comida) can sit in any of the 4 daily slots.
   asMeal1 MealPlanDay[] @relation("Meal1Recipe")
   asMeal2 MealPlanDay[] @relation("Meal2Recipe")
+  asMeal3 MealPlanDay[] @relation("Meal3Recipe")
+  asMeal4 MealPlanDay[] @relation("Meal4Recipe")
 
   @@index([approved])
   @@index([category])
@@ -299,7 +301,7 @@ model RecipeIngredient {
   @@index([recipeId])
 }
 
-// --- Meal plan for a week (shake + 2 meals/day). ---
+// --- Meal plan for a week (up to 4 flexible intakes/day). ---
 model MealPlan {
   id     String        @id @default(cuid())
   weekId String        @unique
@@ -307,18 +309,22 @@ model MealPlan {
   days   MealPlanDay[]
 }
 
+// Four optional intakes per day (comida 1..4). Each slot accepts any recipe,
+// so a licuado can go wherever it fits best and meals can be varied freely.
 model MealPlanDay {
   id         String   @id @default(cuid())
   mealPlanId String
   mealPlan   MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
   day        Int // 0=Monday .. 6=Sunday
 
-  shakeId String?
-  shake   Recipe? @relation("ShakeRecipe", fields: [shakeId], references: [id])
   meal1Id String?
   meal1   Recipe? @relation("Meal1Recipe", fields: [meal1Id], references: [id])
   meal2Id String?
   meal2   Recipe? @relation("Meal2Recipe", fields: [meal2Id], references: [id])
+  meal3Id String?
+  meal3   Recipe? @relation("Meal3Recipe", fields: [meal3Id], references: [id])
+  meal4Id String?
+  meal4   Recipe? @relation("Meal4Recipe", fields: [meal4Id], references: [id])
 
   @@unique([mealPlanId, day])
 }

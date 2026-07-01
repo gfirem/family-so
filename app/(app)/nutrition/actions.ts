@@ -133,15 +133,18 @@ async function ensureMealPlan(weekId: string) {
 }
 
 const SLOT_FIELD = {
-  shake: "shakeId",
   meal1: "meal1Id",
   meal2: "meal2Id",
+  meal3: "meal3Id",
+  meal4: "meal4Id",
 } as const;
+
+export type MealSlot = keyof typeof SLOT_FIELD;
 
 export async function setMealPlanDay(
   weekId: string,
   day: number,
-  slot: "shake" | "meal1" | "meal2",
+  slot: MealSlot,
   recipeId: string,
 ) {
   await requireUser();

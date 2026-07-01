@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { setMealPlanDay } from "./actions";
+import { setMealPlanDay, type MealSlot } from "./actions";
 
 export function MealSelect({
   weekId,
@@ -12,7 +12,7 @@ export function MealSelect({
 }: {
   weekId: string;
   day: number;
-  slot: "shake" | "meal1" | "meal2";
+  slot: MealSlot;
   current: string | null;
   options: { id: string; name: string }[];
 }) {
