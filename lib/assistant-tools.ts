@@ -1,6 +1,7 @@
 // Tools shared by the chat with Claude (in-app) and the MCP server.
-// Each one reads/writes family-so data. The write tools are scoped and safe
-// (they don't delete or modify sensitive health data).
+// Each one reads/writes family-so data. The write tools are scoped: they
+// manage recipe-bank content (including deletion) but never touch or delete
+// sensitive health data such as habit logs.
 
 import { put } from "@vercel/blob";
 import { db } from "@/lib/db";
@@ -379,6 +380,30 @@ export const assistantTools: ToolDef[] = [
         select: { id: true, name: true, photoUrl: true },
       });
       return JSON.stringify({ ok: true, recipe });
+    },
+  },
+  {
+    name: "delete_recipe",
+    description:
+      "Permanently deletes a recipe from the bank by its id. Cascades to the recipe's ingredients and clears it from any meal plan slot. Requires the exact recipe id and returns the deleted recipe name for confirmation. This action cannot be undone.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        recipeId: { type: "string", description: "The exact id of the recipe to delete" },
+      },
+      required: ["recipeId"],
+      additionalProperties: false,
+    },
+    handler: async (args) => {
+      const recipeId = String(args.recipeId).trim();
+      if (!recipeId) throw new Error("Se requiere recipeId.");
+      const recipe = await db.recipe.findUnique({
+        where: { id: recipeId },
+        select: { id: true, name: true },
+      });
+      if (!recipe) throw new Error(`No existe una receta con id ${recipeId}.`);
+      await db.recipe.delete({ where: { id: recipeId } });
+      return JSON.stringify({ ok: true, deleted: recipe });
     },
   },
 ];
