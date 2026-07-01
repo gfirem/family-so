@@ -1,57 +1,57 @@
 # BACKLOG
 
-Etiquetas: **[v1]** corazón del sistema · **[v2]** recordatorios e integraciones · **[v3]** despliegue / IA.
+Labels: **[v1]** heart of the system · **[v2]** reminders and integrations · **[v3]** deployment / AI.
 
-## Planning del domingo
-- [v1] Flujo guiado de 7 bloques (mirar atrás → norte → entreno → comida → conexión → anticipar baches → tareas).
-- [v1] Resultado consolidado de la semana: **lista de compras + comidas + actividades**.
-- [v2] Recordatorio del **viernes**: "andá pensando a dónde van la semana próxima" (vía Calendar).
-- [v2] Evento recurrente de **planning del domingo** (vía Calendar).
+## Sunday planning
+- [v1] Guided 7-block flow (look back → north star → training → meals → connection → anticipate bumps → tasks).
+- [v1] Consolidated weekly output: **shopping list + meals + activities**.
+- [v2] **Friday** reminder: "start thinking about where you're going next week" (via Calendar).
+- [v2] Recurring **Sunday planning** event (via Calendar).
 
-## Alimentación (1-2-12)
-- [v1] **Banco de recetas**: cargar recetas del recetario, marcar las **aprobadas**, etiquetar (sin-lácteos, etc.).
-- [v1] **Plan semanal**: por día, licuado + 2 comidas, eligiendo del banco aprobado y rotando para no repetir.
-- [v1] Generar **lista del mercado** a partir del plan.
-- [v3] Generación/rotación automática del plan con IA ("dame algo distinto para el miércoles sin lácteos").
+## Nutrition (1-2-12)
+- [v1] **Recipe bank**: load recipes from the recipe book, mark the **approved** ones, tag them (dairy-free, etc.).
+- [v1] **Weekly plan**: per day, shake + 2 meals, choosing from the approved bank and rotating to avoid repeats.
+- [v1] Generate the **shopping list** from the plan.
+- [v3] Automatic plan generation/rotation with AI ("give me something different for Wednesday, dairy-free").
 
-## Hábitos
-- [v1] Tracker semanal por persona (G y esposa), marcar cumplido por día, total y racha.
-- [v1] **Agregar hábitos nuevos**; marcar los **keystone**; ligar cada uno a la identidad.
-- [v1] Recordar los **objetivos** junto al tracker; regla **nunca fallar dos veces seguidas** visible.
-- [v1] Registro de **peso** semanal.
+## Habits
+- [v1] Weekly tracker per person (G and wife), mark done per day, total and streak.
+- [v1] **Add new habits**; mark the **keystone** ones; link each to identity.
+- [v1] Recall the **objectives** alongside the tracker; the **never miss twice in a row** rule visible.
+- [v1] Weekly **weight** log.
 
-## Metas y trimestres
-- [v1] Escribir **metas del año** y dividirlas por **trimestre**, asignadas a un pilar.
-- [v1] Marcar avance; al cambiar de trimestre, **cerrar las viejas y abrir nuevas**.
-- [v1] **Metas personales (privadas) vs familiares (compartidas)**: las privadas solo las ve su dueño.
-- [v1] **Vista de año** (metas grandes + resumen de los 4 trimestres) y **vista de trimestre** para ejecutar y ajustar.
-- [v1] **Cierre por período**: análisis trimestral y anual (lo que salió bien, lo difícil, aprendizajes, foco siguiente).
-- [v2] Recordatorio de que hay **cierre/apertura de trimestre pendiente**.
+## Goals and quarters
+- [v1] Write **yearly goals** and split them by **quarter**, assigned to a pillar.
+- [v1] Mark progress; when the quarter changes, **close the old ones and open new ones**.
+- [v1] **Personal (private) vs family (shared) goals**: private ones are seen only by their owner.
+- [v1] **Year view** (big goals + summary of the 4 quarters) and **quarter view** to execute and adjust.
+- [v1] **Close by period**: quarterly and annual analysis (what went well, what was hard, learnings, next focus).
+- [v2] Reminder that there is a **pending quarter close/open**.
 
-## Estructura del día
-- [v1] Definir bloques horarios y mostrarlos; cadena de la mañana.
-- [v1] Reglas de sueño 10-3-2-1-0 visibles.
-- [v2] Recordatorios de horarios clave (vía Calendar).
+## Day structure
+- [v1] Define time blocks and show them; morning chain.
+- [v1] 10-3-2-1-0 sleep rules visible.
+- [v2] Reminders for key times (via Calendar).
 
-## Planes y conexión
-- [v1] **Banco de planes** (parques, ríos, salidas baratas) para no quedar en blanco.
-- [v2] **Compartir invitaciones** a amigos (Calendar/correo, con confirmación). *Idea clave: si invitamos nosotros, el plan lo ponemos nosotros.*
-- [v1] **Guion del "no"**: respuestas ya decididas para declinar cerveza/comida, escritas en frío.
+## Plans and connection
+- [v1] **Plan bank** (parks, rivers, cheap outings) so we're never blank.
+- [v2] **Share invitations** with friends (Calendar/email, with confirmation). *Key idea: if we do the inviting, we set the plan.*
+- [v1] **The "no" script**: pre-decided answers to decline beer/food, written cold.
 
-## Entrenamiento (externo — Freeletics)
-- El entrenamiento se hace en **Freeletics**; family-so NO construye un módulo de rutinas.
-- family-so solo **registra** que se entrenó, vía el hábito clave **"Entrenaste"** en el tracker.
+## Training (external — Freeletics)
+- Training is done in **Freeletics**; family-so does NOT build a routines module.
+- family-so only **records** that a workout happened, via the key habit **"Did you train"** in the tracker.
 
-## Fertilidad (meta grande del trimestre)
-- [v2] Checklist y calendario de **citas y pendientes** rumbo al proceso de FIV.
+## Fertility (big goal of the quarter)
+- [v2] Checklist and calendar of **appointments and to-dos** toward the IVF process.
 
-## Recordatorios y salud
-- [v2] Recordatorio de **pastillas** (las de él y las de ella) y de **agua** (vía Calendar).
+## Reminders and health
+- [v2] **Pills** reminder (his and hers) and **water** reminder (via Calendar).
 
-## Tablero / seguimiento
-- [v1] Tablero de la semana: tendencia de **peso**, **% de hábitos** cumplidos, "**qué nos descarriló**".
-- [v2] **Bitácora de decisiones**: lo ya resuelto, para no volver a discutirlo.
+## Dashboard / tracking
+- [v1] Weekly dashboard: **weight** trend, **% of habits** completed, "**what derailed us**".
+- [v2] **Decision log**: what's already resolved, so we don't re-argue it.
 
 ## Infra
-- [v1] App web con **persistencia** de datos.
-- [v3] Despliegue multiusuario (cuentas propias en ambos teléfonos) / app nativa.
+- [v1] Web app with data **persistence**.
+- [v3] Multi-user deployment (their own accounts on both phones) / native app.

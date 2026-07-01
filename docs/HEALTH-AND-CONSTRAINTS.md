@@ -1,27 +1,27 @@
 # HEALTH & CONSTRAINTS
 
-> **Esto no es consejo médico.** Estas notas existen para que el producto no incorpore por defecto protocolos que conviene validar con un profesional.
+> **This is not medical advice.** These notes exist so the product does not incorporate by default protocols that should be validated with a professional.
 
-## Condiciones
-- **Guille:** hipertensión (la controla cuando entrena) + **hígado graso**.
-- **Esposa:** **prediabética**.
-- Ambos se preparan para **fertilidad / FIV** en ~3 meses.
+## Conditions
+- **Guille:** hypertension (controlled when he trains) + **fatty liver**.
+- **Wife:** **prediabetic**.
+- Both are preparing for **fertility / IVF** in ~3 months.
 
-## Qué juega a favor (seguro)
-- **1-2-12** (dietista-respaldado): más proteína, menos azúcar y refinados, ventana de comida. Ayuda al hígado graso, a estabilizar glucosa (prediabetes) y a bajar de peso de forma sostenible.
-- **Reducir alcohol:** ayuda directo al hígado graso y a la presión. Refuerzo concreto para el plan social del viernes.
-- **Entrenar y dormir bien:** base de todo, e impacto positivo en hormonas y fertilidad.
+## What works in their favor (safe)
+- **1-2-12** (dietitian-backed): more protein, less sugar and refined carbs, an eating window. Helps fatty liver, glucose stabilization (prediabetes) and sustainable weight loss.
+- **Reducing alcohol:** directly helps fatty liver and blood pressure. A concrete reinforcement for the Friday social plan.
+- **Training and sleeping well:** the base of everything, with a positive impact on hormones and fertility.
 
-## Qué requiere validación médica antes de implementar
-- **Suero con sal del protocolo Unani** (1 L de agua con limón y sal, aumentando sodio): cargar sodio con **hipertensión** hay que mirarlo con cuidado.
-- **"Limpiezas" / ayunos del Factor Quema Grasa** (master cleanse con agua salada, limonada, etc.): no incorporar por defecto.
-- Coordinar el plan nutricional con la **clínica de fertilidad** y, idealmente, una **nutricionista**.
+## What requires medical validation before implementing
+- **Salt water from the Unani protocol** (1 L of water with lemon and salt, increasing sodium): loading sodium with **hypertension** must be looked at carefully.
+- **"Cleanses" / fasts from the Fat Burning Factor** (master cleanse with salt water, lemonade, etc.): do not incorporate by default.
+- Coordinate the nutrition plan with the **fertility clinic** and, ideally, a **nutritionist**.
 
-## Implicancia para el producto
-- No "recetar" estos protocolos automáticamente. Si se incluyen como opción, marcarlos como **"validar con tu médico"**.
-- Cualquier consejo de salud dentro de la app debe ser informativo, no prescriptivo.
+## Product implication
+- Do not "prescribe" these protocols automatically. If included as an option, mark them as **"validate with your doctor"**.
+- Any health advice inside the app must be informative, not prescriptive.
 
-## Límites técnicos del producto
-- Web app: persiste datos, multiusuario si se despliega, tableros y planes. **No** dispara alarmas con la app cerrada.
-- Recordatorios/alarmas → **Google Calendar** (eventos recurrentes). Envíos/invitaciones → con confirmación del usuario.
-- App nativa en ambos teléfonos con cuentas propias = proyecto de despliegue aparte.
+## Product technical limits
+- Web app: persists data, multi-user if deployed, dashboards and plans. It does **not** fire alarms when the app is closed.
+- Reminders/alarms → **Google Calendar** (recurring events). Sends/invitations → with user confirmation.
+- A native app on both phones with their own accounts = a separate deployment project.
