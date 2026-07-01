@@ -54,7 +54,7 @@ Trabajan los dos en remoto desde casa. Sin un plan propio, la semana se va encer
 ## Mapa de módulos
 - **Tablero** (`/`) — peso, % de hábitos, "qué nos descarriló".
 - **Planning del domingo** (`/planning`) — flujo de 7 bloques (columna vertebral).
-- **Alimentación 1-2-12** (`/nutrition`) — banco de recetas + plan semanal + lista del mercado.
+- **Alimentación 1-2-12** (`/nutrition`) — recetas + plan semanal + lista del mercado.
 - **Hábitos** (`/habits`) — tracker por persona, racha, "nunca fallar dos veces", peso.
 - **Metas** (`/goals`) — trimestrales por pilar.
 - **El día** (`/day`) — estructura + sueño 10-3-2-1-0.
