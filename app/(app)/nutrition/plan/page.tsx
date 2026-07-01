@@ -15,8 +15,12 @@ export default async function PlanPage() {
     orderBy: [{ isShake: "desc" }, { name: "asc" }],
   });
 
-  const shakes = recipes.filter((r) => r.isShake);
-  const meals = recipes.filter((r) => !r.isShake);
+  // Every slot can hold any recipe — a licuado or a comida — so the four columns
+  // share a single option list (licuados marked with 🥤 to tell them apart).
+  const options = recipes.map((r) => ({
+    id: r.id,
+    name: `${r.isShake ? "🥤" : "🍽️"} ${r.name}`,
+  }));
 
   const dayMap = new Map(week.mealPlan?.days.map((d) => [d.day, d]) ?? []);
   const recipeItems = week.shoppingItems.filter((i) => i.source === "receta").length;
@@ -26,13 +30,13 @@ export default async function PlanPage() {
       <PageHeader
         emoji="🗓️"
         title="Plan de la semana"
-        subtitle="1 licuado + 2 comidas reales (≥30 g proteína) · ventana 8 AM – 6 PM."
+        subtitle="Hasta 4 ingestas por día · poné el licuado donde mejor te funcione · ventana 8 AM – 6 PM."
       />
       <NutritionTabs />
 
       <Card className="mb-5 overflow-x-auto">
         <SectionTitle>Semana en curso</SectionTitle>
-        {shakes.length === 0 && meals.length === 0 ? (
+        {options.length === 0 ? (
           <p className="text-sm text-[var(--color-muted)]">
             Primero aprobá recetas en{" "}
             <Link href="/nutrition/recipes" className="text-[var(--color-brand-700)] underline">
@@ -45,9 +49,10 @@ export default async function PlanPage() {
             <thead>
               <tr className="text-left text-xs text-[var(--color-muted)]">
                 <th className="pb-2 pr-2">Día</th>
-                <th className="pb-2 pr-2">Licuado</th>
                 <th className="pb-2 pr-2">Comida 1</th>
-                <th className="pb-2">Comida 2</th>
+                <th className="pb-2 pr-2">Comida 2</th>
+                <th className="pb-2 pr-2">Comida 3</th>
+                <th className="pb-2">Comida 4</th>
               </tr>
             </thead>
             <tbody>
@@ -57,13 +62,16 @@ export default async function PlanPage() {
                   <tr key={day} className="border-t border-[var(--color-line)]">
                     <td className="py-2 pr-2 font-medium">{dn}</td>
                     <td className="py-2 pr-2">
-                      <MealSelect weekId={week.id} day={day} slot="shake" current={d?.shakeId ?? null} options={shakes} />
+                      <MealSelect weekId={week.id} day={day} slot="meal1" current={d?.meal1Id ?? null} options={options} />
                     </td>
                     <td className="py-2 pr-2">
-                      <MealSelect weekId={week.id} day={day} slot="meal1" current={d?.meal1Id ?? null} options={meals} />
+                      <MealSelect weekId={week.id} day={day} slot="meal2" current={d?.meal2Id ?? null} options={options} />
+                    </td>
+                    <td className="py-2 pr-2">
+                      <MealSelect weekId={week.id} day={day} slot="meal3" current={d?.meal3Id ?? null} options={options} />
                     </td>
                     <td className="py-2">
-                      <MealSelect weekId={week.id} day={day} slot="meal2" current={d?.meal2Id ?? null} options={meals} />
+                      <MealSelect weekId={week.id} day={day} slot="meal4" current={d?.meal4Id ?? null} options={options} />
                     </td>
                   </tr>
                 );
