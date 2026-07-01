@@ -27,7 +27,15 @@ const LINKS: NavLink[] = [
     ],
   },
   { href: "/habits", label: "Hábitos", icon: "✅" },
-  { href: "/goals", label: "Metas", icon: "🎯" },
+  {
+    href: "/goals",
+    label: "Metas",
+    icon: "🎯",
+    children: [
+      { href: "/goals", label: "Metas" },
+      { href: "/goals/reviews", label: "Cierres" },
+    ],
+  },
   { href: "/day", label: "El día", icon: "🌅" },
   { href: "/plans", label: "Planes", icon: "🌳" },
   { href: "/chat", label: "Chat", icon: "💬" },
@@ -50,6 +58,12 @@ function currentLabel(pathname: string) {
 // Renders a top-level link and, when its section is active, its sub-links.
 function NavSection({ link, pathname }: { link: NavLink; pathname: string }) {
   const active = isActive(pathname, link.href);
+  // Only the most specific (longest matching href) child is highlighted, so a
+  // parent-path child (e.g. /goals) doesn't stay active on a nested child route
+  // (e.g. /goals/reviews).
+  const activeChildHref = link.children
+    ?.filter((c) => isActive(pathname, c.href))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
   return (
     <div>
       <Link
@@ -70,7 +84,7 @@ function NavSection({ link, pathname }: { link: NavLink; pathname: string }) {
               key={c.href}
               href={c.href}
               className={`block rounded-lg px-2 py-1.5 text-sm transition-colors ${
-                isActive(pathname, c.href)
+                c.href === activeChildHref
                   ? "font-medium text-[var(--color-brand-700)]"
                   : "text-[var(--color-muted)] hover:bg-[var(--color-bg)]"
               }`}

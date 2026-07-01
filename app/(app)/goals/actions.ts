@@ -7,6 +7,7 @@ import type { GoalVisibility } from "@prisma/client";
 
 function refresh() {
   revalidatePath("/goals");
+  revalidatePath("/goals/reviews");
 }
 
 // Normalizes the visibility coming from a form into a valid enum value.
@@ -59,6 +60,17 @@ export async function reopen(id: string) {
   const goal = await loadOwnedGoal(id);
   if (!goal) return;
   await db.goal.update({ where: { id }, data: { status: "open", closedAt: null } });
+  refresh();
+}
+
+// Assigns a goal to a quarter (1..4) or back to annual (null). Lets you move an
+// annual goal down to a quarter, or shift a quarterly goal between quarters.
+export async function assignQuarter(id: string, quarter: number | null) {
+  const goal = await loadOwnedGoal(id);
+  if (!goal) return;
+  const q =
+    quarter != null && Number.isInteger(quarter) && quarter >= 1 && quarter <= 4 ? quarter : null;
+  await db.goal.update({ where: { id }, data: { quarter: q } });
   refresh();
 }
 
