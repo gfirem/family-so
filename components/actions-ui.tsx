@@ -73,6 +73,37 @@ export function ActionButton({
   );
 }
 
+// Dropdown that reassigns a goal's quarter (or "Anual") as soon as it changes.
+export function QuarterSelect({
+  id,
+  quarter,
+  action,
+}: {
+  id: string;
+  quarter: number | null;
+  action: (id: string, quarter: number | null) => Promise<void>;
+}) {
+  const [pending, start] = useTransition();
+  return (
+    <select
+      value={quarter ?? ""}
+      disabled={pending}
+      aria-label="Asignar a un trimestre"
+      onChange={(e) => {
+        const v = e.target.value;
+        start(() => action(id, v === "" ? null : Number(v)));
+      }}
+      className="rounded-lg border border-[var(--color-line)] bg-white px-1.5 py-1 text-xs text-[var(--color-muted)]"
+    >
+      <option value="">Anual</option>
+      <option value="1">Q1</option>
+      <option value="2">Q2</option>
+      <option value="3">Q3</option>
+      <option value="4">Q4</option>
+    </select>
+  );
+}
+
 // Submit button with pending state (for forms with server actions).
 export function SubmitButton({
   children,

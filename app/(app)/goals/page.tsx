@@ -1,28 +1,15 @@
 import Link from "next/link";
 import { PageHeader, Card, SectionTitle } from "@/components/ui";
-import { ActionButton, SubmitButton } from "@/components/actions-ui";
+import { ActionButton, SubmitButton, QuarterSelect } from "@/components/actions-ui";
 import { db } from "@/lib/db";
 import { quarterOf } from "@/lib/dates";
 import { requireUser } from "@/lib/session";
 import type { GoalVisibility, Prisma } from "@prisma/client";
-import { addGoal, markDone, reopen, deleteGoal, carryToNextQuarter, saveReview } from "./actions";
+import { addGoal, markDone, reopen, deleteGoal, carryToNextQuarter, assignQuarter } from "./actions";
+import { Toggle, shiftQuarter } from "./ui";
 
 type Scope = GoalVisibility;
 type View = "year" | "quarter";
-
-function shiftQuarter(year: number, quarter: number, delta: number) {
-  let q = quarter + delta;
-  let y = year;
-  while (q > 4) {
-    q -= 4;
-    y += 1;
-  }
-  while (q < 1) {
-    q += 4;
-    y -= 1;
-  }
-  return { year: y, quarter: q };
-}
 
 // Builds a /goals link preserving the current scope/view/period context.
 function goalsHref(params: { scope: Scope; view: View; y: number; q?: number }) {
@@ -58,17 +45,6 @@ export default async function MetasPage({
     orderBy: { order: "asc" },
   });
 
-  // The period this view is closing: a quarter, or the whole year.
-  const reviewQuarter = view === "quarter" ? quarter : null;
-  const review = await db.quarterReview.findFirst({
-    where: {
-      year,
-      quarter: reviewQuarter,
-      visibility: scope,
-      ownerId: scope === "private" ? user.id : null,
-    },
-  });
-
   return (
     <>
       <PageHeader
@@ -102,13 +78,7 @@ export default async function MetasPage({
       )}
 
       {view === "year" ? (
-        <YearView
-          scope={scope}
-          year={year}
-          ownerFilter={ownerFilter}
-          pillars={pillars}
-          review={review}
-        />
+        <YearView scope={scope} year={year} ownerFilter={ownerFilter} pillars={pillars} />
       ) : (
         <QuarterView
           scope={scope}
@@ -117,7 +87,6 @@ export default async function MetasPage({
           now={now}
           ownerFilter={ownerFilter}
           pillars={pillars}
-          review={review}
         />
       )}
     </>
@@ -133,7 +102,6 @@ async function QuarterView({
   now,
   ownerFilter,
   pillars,
-  review,
 }: {
   scope: Scope;
   year: number;
@@ -141,7 +109,6 @@ async function QuarterView({
   now: { year: number; quarter: number };
   ownerFilter: Prisma.GoalWhereInput;
   pillars: { id: string; name: string }[];
-  review: { wins: string | null; challenges: string | null; learnings: string | null; nextFocus: string | null } | null;
 }) {
   const goals = await db.goal.findMany({
     where: { ...ownerFilter, year, quarter },
@@ -181,15 +148,6 @@ async function QuarterView({
       />
 
       <NewGoalForm scope={scope} year={year} quarter={quarter} pillars={pillars} />
-
-      <ReviewForm
-        scope={scope}
-        year={year}
-        quarter={quarter}
-        review={review}
-        title={`Cierre de Q${quarter} ${year}`}
-        subtitle="Analizá el trimestre antes de abrir el siguiente. Sin reproches: buscamos el patrón."
-      />
     </>
   );
 }
@@ -201,13 +159,11 @@ async function YearView({
   year,
   ownerFilter,
   pillars,
-  review,
 }: {
   scope: Scope;
   year: number;
   ownerFilter: Prisma.GoalWhereInput;
   pillars: { id: string; name: string }[];
-  review: { wins: string | null; challenges: string | null; learnings: string | null; nextFocus: string | null } | null;
 }) {
   // Annual goals (no quarter) + a roll-up of the quarterly goals for the year.
   const annualGoals = await db.goal.findMany({
@@ -273,15 +229,6 @@ async function YearView({
       />
 
       <NewGoalForm scope={scope} year={year} quarter={null} pillars={pillars} />
-
-      <ReviewForm
-        scope={scope}
-        year={year}
-        quarter={null}
-        review={review}
-        title={`Cierre del año ${year}`}
-        subtitle="El cierre anual: qué pasó este año y qué te llevás para el próximo."
-      />
     </>
   );
 }
@@ -293,6 +240,7 @@ type GoalWithPillar = {
   text: string;
   status: string;
   pillarId: string;
+  quarter: number | null;
 };
 
 function GoalsByPillar({
@@ -343,6 +291,9 @@ function GoalsByPillar({
                     )}
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
+                    {g.status === "open" && (
+                      <QuarterSelect id={g.id} quarter={g.quarter} action={assignQuarter} />
+                    )}
                     {g.status === "done" ? (
                       <ActionButton
                         id={g.id}
@@ -360,7 +311,7 @@ function GoalsByPillar({
                         ✓ Cumplida
                       </ActionButton>
                     )}
-                    {g.status === "open" && (
+                    {g.status === "open" && g.quarter != null && (
                       <ActionButton
                         id={g.id}
                         action={carryToNextQuarter}
@@ -395,13 +346,11 @@ function NewGoalForm({
   quarter: number | null;
   pillars: { id: string; name: string }[];
 }) {
-  const periodLabel = quarter ? `Q${quarter} ${year}` : `el año ${year}`;
   return (
     <Card className="mb-5">
       <SectionTitle>Escribir una meta</SectionTitle>
       <form action={addGoal} className="space-y-2">
         <input type="hidden" name="year" value={year} />
-        <input type="hidden" name="quarter" value={quarter ?? ""} />
         <input type="hidden" name="visibility" value={scope} />
         <textarea
           name="text"
@@ -410,120 +359,33 @@ function NewGoalForm({
           className="input"
           required
         />
-        <select name="pillarId" className="input" required defaultValue="">
-          <option value="" disabled>
-            Asignar a un pilar…
-          </option>
-          {pillars.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
-        <SubmitButton>Agregar meta a {periodLabel}</SubmitButton>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-[var(--color-muted)]">Trimestre</span>
+            <select name="quarter" className="input" defaultValue={quarter ?? ""}>
+              <option value="">Anual (todo el año {year})</option>
+              <option value="1">Q1 {year}</option>
+              <option value="2">Q2 {year}</option>
+              <option value="3">Q3 {year}</option>
+              <option value="4">Q4 {year}</option>
+            </select>
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium text-[var(--color-muted)]">Pilar</span>
+            <select name="pillarId" className="input" required defaultValue="">
+              <option value="" disabled>
+                Asignar a un pilar…
+              </option>
+              {pillars.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <SubmitButton>Agregar meta</SubmitButton>
       </form>
     </Card>
-  );
-}
-
-// ---------------------------------------------------------------------------
-
-function ReviewForm({
-  scope,
-  year,
-  quarter,
-  review,
-  title,
-  subtitle,
-}: {
-  scope: Scope;
-  year: number;
-  quarter: number | null;
-  review: { wins: string | null; challenges: string | null; learnings: string | null; nextFocus: string | null } | null;
-  title: string;
-  subtitle: string;
-}) {
-  return (
-    <Card>
-      <SectionTitle>{title}</SectionTitle>
-      <p className="-mt-2 mb-3 text-xs text-[var(--color-muted)]">{subtitle}</p>
-      <form action={saveReview} className="space-y-3">
-        <input type="hidden" name="year" value={year} />
-        <input type="hidden" name="quarter" value={quarter ?? ""} />
-        <input type="hidden" name="visibility" value={scope} />
-        <ReviewField
-          name="wins"
-          label="✅ Lo que salió bien"
-          placeholder="Logros, lo que celebramos…"
-          defaultValue={review?.wins ?? ""}
-        />
-        <ReviewField
-          name="challenges"
-          label="🌧️ Lo más difícil / qué nos descarriló"
-          placeholder="Sin reproches: ¿cuál fue el patrón?"
-          defaultValue={review?.challenges ?? ""}
-        />
-        <ReviewField
-          name="learnings"
-          label="💡 Aprendizajes"
-          placeholder="¿Qué nos llevamos?"
-          defaultValue={review?.learnings ?? ""}
-        />
-        <ReviewField
-          name="nextFocus"
-          label="🎯 Foco para el próximo período"
-          placeholder="¿Dónde ponemos la energía ahora?"
-          defaultValue={review?.nextFocus ?? ""}
-        />
-        <SubmitButton>Guardar cierre</SubmitButton>
-      </form>
-    </Card>
-  );
-}
-
-function ReviewField({
-  name,
-  label,
-  placeholder,
-  defaultValue,
-}: {
-  name: string;
-  label: string;
-  placeholder: string;
-  defaultValue: string;
-}) {
-  return (
-    <label className="block">
-      <span className="mb-1 block text-sm font-medium">{label}</span>
-      <textarea name={name} rows={2} placeholder={placeholder} defaultValue={defaultValue} className="input" />
-    </label>
-  );
-}
-
-// ---------------------------------------------------------------------------
-
-function Toggle<T extends string>({
-  options,
-  active,
-}: {
-  options: { key: T; label: string; href: string }[];
-  active: T;
-}) {
-  return (
-    <div className="inline-flex rounded-xl border border-[var(--color-line)] bg-white p-1">
-      {options.map((o) => (
-        <Link
-          key={o.key}
-          href={o.href}
-          className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-            o.key === active
-              ? "bg-[var(--color-brand-600)] text-white"
-              : "text-[var(--color-muted)] hover:text-[var(--color-ink)]"
-          }`}
-        >
-          {o.label}
-        </Link>
-      ))}
-    </div>
   );
 }
