@@ -118,6 +118,22 @@ export async function addSchedule(formData: FormData) {
   refresh();
 }
 
+export async function updateSchedule(formData: FormData) {
+  await requireUser();
+  const id = String(formData.get("id"));
+  const name = String(formData.get("name") ?? "").trim();
+  if (!id || !name) return;
+  await db.habitSchedule.update({
+    where: { id },
+    data: {
+      name,
+      emoji: String(formData.get("emoji") ?? "🕒").trim() || "🕒",
+      atTime: clean(formData, "atTime"),
+    },
+  });
+  refresh();
+}
+
 export async function deleteSchedule(id: string) {
   await requireUser();
   // Habits keep existing; their scheduleId is set null via onDelete: SetNull.

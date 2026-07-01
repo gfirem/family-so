@@ -8,6 +8,7 @@ import {
   updateHabit,
   deleteHabit,
   addSchedule,
+  updateSchedule,
   deleteSchedule,
   createDefaultSchedules,
   setHabitReminder,
@@ -51,21 +52,41 @@ export default async function ManagePage({
             <SubmitButton className="btn-ghost">Crear Mañana · Mediodía · Noche</SubmitButton>
           </form>
         ) : (
-          <ul className="mb-3 flex flex-wrap gap-2">
+          <ul className="mb-3 space-y-2">
             {schedules.map((s) => (
-              <li key={s.id} className="chip gap-1.5">
-                <span>
-                  {s.emoji} {s.name}
-                  {s.atTime ? ` · ${s.atTime}` : ""}
-                </span>
-                <ActionButton
-                  id={s.id}
-                  action={deleteSchedule}
-                  confirm={`¿Eliminar el horario "${s.name}"? Los hábitos quedan, sin horario.`}
-                  className="text-[var(--color-muted)] hover:text-[var(--color-danger)]"
-                >
-                  ✕
-                </ActionButton>
+              <li key={s.id} className="rounded-xl border border-[var(--color-line)] p-2">
+                <form action={updateSchedule} className="flex flex-wrap items-end gap-2">
+                  <input type="hidden" name="id" value={s.id} />
+                  <input
+                    name="emoji"
+                    aria-label="Emoji"
+                    className="input w-16"
+                    defaultValue={s.emoji}
+                  />
+                  <input
+                    name="name"
+                    aria-label="Nombre del horario"
+                    className="input w-44"
+                    defaultValue={s.name}
+                    required
+                  />
+                  <input
+                    name="atTime"
+                    type="time"
+                    aria-label="Hora"
+                    className="input w-32"
+                    defaultValue={s.atTime ?? ""}
+                  />
+                  <SubmitButton className="btn-ghost">Guardar</SubmitButton>
+                  <ActionButton
+                    id={s.id}
+                    action={deleteSchedule}
+                    confirm={`¿Eliminar el horario "${s.name}"? Los hábitos quedan, sin horario.`}
+                    className="text-[var(--color-muted)] hover:text-[var(--color-danger)]"
+                  >
+                    Eliminar
+                  </ActionButton>
+                </form>
               </li>
             ))}
           </ul>
