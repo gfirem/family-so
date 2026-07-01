@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { DAY_NAMES } from "@/lib/dates";
+import { recipePhotoSrc } from "@/lib/recipe-photo";
 import { setMealPlanDay, type MealSlot } from "./actions";
 
 // Lightweight recipe shape the picker needs — kept small so the whole approved
@@ -328,10 +329,10 @@ function RecipeCard({
           : "border-[var(--color-line)] hover:bg-[var(--color-bg)]"
       }`}
     >
-      {recipe.photoUrl ? (
+      {recipePhotoSrc(recipe) ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={recipe.photoUrl}
+          src={recipePhotoSrc(recipe)!}
           alt=""
           className="h-14 w-14 shrink-0 rounded-lg object-cover"
         />
