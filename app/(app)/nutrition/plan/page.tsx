@@ -1,28 +1,39 @@
 import Link from "next/link";
 import { PageHeader, Card, SectionTitle } from "@/components/ui";
 import { ActionButton } from "@/components/actions-ui";
-import { MealSelect } from "../MealSelect";
+import { WeekMealPlan, type PlanDay } from "../WeekMealPlan";
 import { NutritionTabs } from "../Tabs";
 import { db } from "@/lib/db";
 import { getCurrentWeek } from "@/lib/week";
-import { DAY_NAMES } from "@/lib/dates";
 import { generateMarketList } from "../actions";
 
 export default async function PlanPage() {
   const week = await getCurrentWeek();
+  // Only the lightweight fields the picker needs; sent to the client once instead
+  // of once per <select>, so the page stays light with hundreds of recipes.
   const recipes = await db.recipe.findMany({
     where: { approved: true },
     orderBy: [{ isShake: "desc" }, { name: "asc" }],
+    select: {
+      id: true,
+      name: true,
+      isShake: true,
+      category: true,
+      photoUrl: true,
+      calories: true,
+      proteinG: true,
+    },
   });
 
-  // Every slot can hold any recipe — a licuado or a comida — so the four columns
-  // share a single option list (licuados marked with 🥤 to tell them apart).
-  const options = recipes.map((r) => ({
-    id: r.id,
-    name: `${r.isShake ? "🥤" : "🍽️"} ${r.name}`,
-  }));
+  const days: PlanDay[] =
+    week.mealPlan?.days.map((d) => ({
+      day: d.day,
+      meal1Id: d.meal1Id,
+      meal2Id: d.meal2Id,
+      meal3Id: d.meal3Id,
+      meal4Id: d.meal4Id,
+    })) ?? [];
 
-  const dayMap = new Map(week.mealPlan?.days.map((d) => [d.day, d]) ?? []);
   const recipeItems = week.shoppingItems.filter((i) => i.source === "receta").length;
 
   return (
@@ -36,7 +47,7 @@ export default async function PlanPage() {
 
       <Card className="mb-5 overflow-x-auto">
         <SectionTitle>Semana en curso</SectionTitle>
-        {options.length === 0 ? (
+        {recipes.length === 0 ? (
           <p className="text-sm text-[var(--color-muted)]">
             Primero aprobá recetas en{" "}
             <Link href="/nutrition/recipes" className="text-[var(--color-brand-700)] underline">
@@ -45,39 +56,7 @@ export default async function PlanPage() {
             para poder armar el plan.
           </p>
         ) : (
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="text-left text-xs text-[var(--color-muted)]">
-                <th className="pb-2 pr-2">Día</th>
-                <th className="pb-2 pr-2">Comida 1</th>
-                <th className="pb-2 pr-2">Comida 2</th>
-                <th className="pb-2 pr-2">Comida 3</th>
-                <th className="pb-2">Comida 4</th>
-              </tr>
-            </thead>
-            <tbody>
-              {DAY_NAMES.map((dn, day) => {
-                const d = dayMap.get(day);
-                return (
-                  <tr key={day} className="border-t border-[var(--color-line)]">
-                    <td className="py-2 pr-2 font-medium">{dn}</td>
-                    <td className="py-2 pr-2">
-                      <MealSelect weekId={week.id} day={day} slot="meal1" current={d?.meal1Id ?? null} options={options} />
-                    </td>
-                    <td className="py-2 pr-2">
-                      <MealSelect weekId={week.id} day={day} slot="meal2" current={d?.meal2Id ?? null} options={options} />
-                    </td>
-                    <td className="py-2 pr-2">
-                      <MealSelect weekId={week.id} day={day} slot="meal3" current={d?.meal3Id ?? null} options={options} />
-                    </td>
-                    <td className="py-2">
-                      <MealSelect weekId={week.id} day={day} slot="meal4" current={d?.meal4Id ?? null} options={options} />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <WeekMealPlan weekId={week.id} days={days} recipes={recipes} />
         )}
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <ActionButton id={week.id} action={generateMarketList} className="btn-primary">
