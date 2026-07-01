@@ -38,15 +38,6 @@ export default async function RecipeDetailPage({
         }
       />
 
-      {recipe.photoUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={recipe.photoUrl}
-          alt=""
-          className="mb-5 h-48 w-full rounded-2xl object-cover"
-        />
-      )}
-
       {/* Scalar fields */}
       <Card className="mb-5">
         <SectionTitle>Datos de la receta</SectionTitle>

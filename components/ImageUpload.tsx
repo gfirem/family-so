@@ -6,9 +6,8 @@ import { upload } from "@vercel/blob/client";
 // Uploads an image straight to Vercel Blob from the browser and writes the
 // resulting public URL into a hidden field, so the surrounding Server Action
 // form submits it as a plain string — the file never streams through our server
-// (no multipart, no serverless body limit). The user can also paste a URL by
-// hand. `name` is the form field the URL is stored under ("image" for the family
-// photo, "photoUrl" for a recipe).
+// (no multipart, no serverless body limit). `name` is the form field the URL is
+// stored under ("image" for the family photo, "photoUrl" for a recipe).
 export function ImageUpload({
   name,
   defaultValue = "",
@@ -83,15 +82,6 @@ export function ImageUpload({
           onChange={onFile}
         />
       </div>
-
-      {/* Manual fallback: paste a URL instead of uploading. */}
-      <input
-        type="url"
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-        placeholder="…o pegá la URL de la foto"
-        className="input"
-      />
 
       {error && <p className="text-xs text-[var(--color-danger)]">{error}</p>}
     </div>

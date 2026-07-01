@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageHeader, Card, SectionTitle, HealthNote } from "@/components/ui";
 import { SubmitButton } from "@/components/actions-ui";
+import { ImageUpload } from "@/components/ImageUpload";
 import { NutritionTabs } from "../Tabs";
 import { db } from "@/lib/db";
 import { addRecipe } from "../actions";
@@ -145,7 +146,7 @@ export default async function RecipesPage({
             <input name="fatG" type="number" placeholder="Grasa (g)" className="input w-32" />
             <input name="carbsG" type="number" placeholder="Carbs (g)" className="input w-32" />
           </div>
-          <input name="photoUrl" placeholder="URL de la foto (opcional)" className="input" />
+          <ImageUpload name="photoUrl" shape="wide" />
           <input name="tags" placeholder="Etiquetas separadas por coma (ej: sin-lacteos)" className="input" />
           <input name="notes" placeholder="Nota (opcional)" className="input" />
           <div className="flex flex-wrap gap-4">
